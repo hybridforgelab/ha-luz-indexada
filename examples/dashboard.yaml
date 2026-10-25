@@ -156,7 +156,7 @@ sections:
             data_generator: *curve
       - type: custom:apexcharts-card
         grid_options:
-          columns: 6
+          columns: full
         header:
           show: true
           title: Estimated monthly cost (€)
@@ -212,7 +212,7 @@ sections:
             data_generator: *cost
       - type: markdown
         grid_options:
-          columns: 6
+          columns: full
         title: Monthly cost per supplier
         content: |
           {%- set e = 'sensor.luz_indexada_galp_plano_flexivel_simples_cheapest_supplier' -%}

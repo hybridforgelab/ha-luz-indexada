@@ -41,6 +41,7 @@ from .test_coordinator import _at, _setup, _utc
 
 PREFIX = "sensor.luz_indexada_galp_plano_flexivel_simples"
 DASHBOARD = Path(__file__).parents[1] / "examples" / "dashboard.yaml"
+DASHBOARD_PT = Path(__file__).parents[1] / "examples" / "dashboard.pt.yaml"
 COMPARE = load("compare_2026-10.json")
 
 
@@ -371,6 +372,27 @@ async def test_example_dashboard_entities_exist(
     found = re.findall(r"\b(?:sensor|binary_sensor)\.luz_indexada_[a-z0-9_]+", DASHBOARD.read_text())
     ids = {i for i in found if not i.endswith("_")}  # the prefix in the comments ends with "_…"
     assert len(ids) >= 15
+    freezer.move_to(_utc("2026-10-25T10:00:00Z"))
+    _mock(aioclient_mock)
+    await _setup(hass, cmp_entry)
+    missing = sorted(i for i in ids if hass.states.get(i) is None)
+    assert missing == []
+
+
+async def test_example_dashboard_pt_entities_exist(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, freezer, cmp_entry
+) -> None:
+    """Every entity id in examples/dashboard.pt.yaml is created by an install with HA in Portuguese."""
+    hass.config.language = "pt"
+    text = DASHBOARD_PT.read_text()
+    assert yaml.safe_load(text)["type"] == "sections"
+    ids = {i for i in re.findall(r"\b(?:sensor|binary_sensor)\.luz_indexada_[a-z0-9_]+", text) if not i.endswith("_")}
+    en = {
+        i
+        for i in re.findall(r"\b(?:sensor|binary_sensor)\.luz_indexada_[a-z0-9_]+", DASHBOARD.read_text())
+        if not i.endswith("_")
+    }
+    assert len(ids) == len(en)
     freezer.move_to(_utc("2026-10-25T10:00:00Z"))
     _mock(aioclient_mock)
     await _setup(hass, cmp_entry)
