@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/hybridforgelab/ha-luz-indexada/compare/v0.2.1...v0.2.2) (2026-10-25)
+
+
+### Bug Fixes
+
+* setup text says a normal install needs the Pro plan (Basic is now 15 requests/month) ([#6](https://github.com/hybridforgelab/ha-luz-indexada/issues/6)) ([681f219](https://github.com/hybridforgelab/ha-luz-indexada/commit/681f219821d208c319039eeb764dd708c4ca4a6c))
+
 ## [0.2.1](https://github.com/hybridforgelab/ha-luz-indexada/compare/v0.2.0...v0.2.1) (2026-10-25)
 
 
