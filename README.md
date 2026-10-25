@@ -80,7 +80,8 @@ Attributes of **Current price**:
 | `raw_today`, `raw_tomorrow` | `[{"start", "end", "value"}]` per quarter-hour, local ISO times (Nord Pool / ENTSO-e style) |
 | `today`, `tomorrow` | Plain lists of values |
 | `tomorrow_valid` | Tomorrow is known |
-| `tariff`, `status`, `estimate`, `status_reason`, `formula`, `reference_kva` | Tariff details from the API |
+| `tariff`, `status`, `estimate`, `formula`, `reference_kva` | Tariff details from the API |
+| `valid_until`, `terms_expired` | Validity of the supplier terms used for the price, when the API provides it |
 | `period` | Current tariff period (`simples`, `vazio`, `fora_vazio`, `ponta`, `cheias`, …) |
 | `vat_included`, `today_complete`, `flags` | `today_complete` is false while the last hour is still pending |
 

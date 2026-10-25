@@ -154,7 +154,7 @@ class DayPrices:
 
 
 # Fields of a /v1/prices tariff entry kept as-is (additive API fields are tolerated and ignored otherwise).
-_EXTRA_FIELDS = ("status_reason", "valid_from", "valid_to", "valid_until", "source", "source_url")
+_EXTRA_FIELDS = ("status_reason", "valid_from", "valid_to", "valid_until", "terms_expired", "source", "source_url")
 
 
 def parse_prices(body: dict[str, Any], tariff: str, fetched_at: datetime | None = None) -> DayPrices:
