@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/hybridforgelab/ha-luz-indexada/compare/v0.2.0...v0.2.1) (2026-10-25)
+
+
+### Bug Fixes
+
+* hide withdrawn tariffs in setup and default to the first exact one ([#3](https://github.com/hybridforgelab/ha-luz-indexada/issues/3)) ([d4975bb](https://github.com/hybridforgelab/ha-luz-indexada/commit/d4975bbd7d61f26d102ad74535102a3ce499e0de))
+
 ## [0.2.0](https://github.com/hybridforgelab/ha-luz-indexada/compare/v0.1.0...v0.2.0) (2026-10-25)
 
 
