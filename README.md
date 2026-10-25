@@ -20,6 +20,11 @@ Each price is OMIE + losses + supplier terms + network tariff (TAR) + IEC, per t
   price.
 - `Cheap now` binary sensor: on when the current price is below today's average or falls inside the cheapest window.
 - `Tomorrow available` binary sensor (OMIE publishes around 13:00 Lisbon).
+- **Supplier comparison** (on by default): today's average price and the 15-minute curves of every other tariff
+  (from the same requests, no extra calls), an estimated monthly cost per supplier for your consumption and
+  contracted power, and a *Cheapest supplier* sensor with the saving versus your tariff. See
+  [Supplier comparison](#supplier-comparison).
+- A ready-to-paste [example dashboard](examples/dashboard.yaml).
 - Very few API calls (see [API usage](#api-usage)). The current price is computed locally every 15 minutes and the
   prices are cached, so a restart costs no calls.
 - Handles the DST days (92 or 100 quarter-hours) and the pending last hour of the day.
@@ -50,9 +55,13 @@ Manual install: copy `custom_components/luz_indexada` into your `config/custom_c
    - **Direct API**: a base URL and a bearer key, for self-hosted or test deployments.
 2. Pick the **tariff** and the **cycle**, choose whether prices **include 23% VAT**, and set the **cheapest window**
    length.
+3. Supplier comparison: **Compare suppliers** (default on), **Monthly consumption (kWh)** (default 250) and
+   **Contracted power (kVA)** (default 6.9, a standard step). Consumption and power are only used for the monthly
+   cost comparison.
 
 Each tariff and cycle is its own entry, so you can add several to compare them. Each entry has its own API budget.
-VAT and the window length can be changed later under **Configure**, without spending an API call.
+VAT and the window length can be changed later under **Configure**, without spending an API call (changing the
+consumption or the power costs one call, to refresh the monthly comparison).
 
 **About VAT:** the API prices exclude VAT. With *Include 23% VAT* on, every component is multiplied by 1.23. On a
 real bill the first 200 kWh per 30 days (300 for large families) at ≤ 6.9 kVA pay 6%. Prices are computed for a
@@ -72,6 +81,9 @@ per-kWh price has no power option.
 | Tomorrow available | binary sensor | Tomorrow's prices are cached (`complete`, `slots_priced`) |
 | API calls this month | diagnostic sensor | Counted locally; `next_tomorrow_attempt`, `backoff_until`, `last_error` |
 | RapidAPI requests remaining | diagnostic sensor | From RapidAPI's quota headers (RapidAPI mode only) |
+| Average price today — *supplier* | sensor, `EUR/kWh` | One per comparable tariff; `raw_today` / `raw_tomorrow` curves, `status`, `estimate` |
+| Estimated monthly cost — *supplier* | sensor, `€` | One per comparable tariff; `saving_vs_selected`, VAT split, `monthly_kwh`, `kva` |
+| Cheapest supplier | sensor | Name of the cheapest tariff; `tariffs` list with cost, saving and status |
 
 Attributes of **Current price**:
 
@@ -86,6 +98,48 @@ Attributes of **Current price**:
 | `vat_included`, `today_complete`, `flags` | `today_complete` is false while the last hour is still pending |
 
 The per-slot lists aren't written to the recorder database, so your history stays small.
+
+## Supplier comparison
+
+With **Compare suppliers** on (the default, also for entries created by older versions), the integration asks
+`/v1/prices` for every tariff instead of only yours. That is the same number of requests: one response has all the
+tariffs (about 20 KB compressed). Every tariff that is still on sale gets:
+
+- **Average price today — *supplier*** (e.g. `sensor.luz_indexada_galp_plano_flexivel_simples_average_price_today_repsol_leve_sem_mais`):
+  today's mean price, VAT per your option, with `raw_today` / `raw_tomorrow` in the same `[{start, end, value}]`
+  format as *Current price*, so you can overlay every supplier on one ApexCharts chart.
+- **Estimated monthly cost — *supplier*** (e.g. `…_estimated_monthly_cost_repsol_leve_sem_mais`): the API's
+  `/v1/compare` cost of a standard ERSE consumption profile for the current month, at your monthly kWh and contracted
+  power, with the real VAT split (6% on the first 200 kWh at ≤ 6.9 kVA, 23% on the rest) when VAT is on. Days not
+  priced yet are projected. Attributes: `saving_vs_selected` (positive means switching saves money), `total_excl_vat`,
+  `vat`, `avg_energy_price`, `days_priced`, `coverage`, `flags`.
+- **Cheapest supplier** (`…_cheapest_supplier`): the cheapest tariff's name, with `tariffs` (every tariff, cheapest
+  first, with `cost`, `saving`, `status`, `estimate`, `selected`), `selected_cost`, `saving`, `cheapest_exact`,
+  `monthly_kwh`, `kva` and `month`.
+
+Tariffs that were withdrawn and replaced (for example Coopérnico Base 2.0, replaced by ÚNICO) or that are not
+available for your cycle are left out. **Estimate** tariffs are marked with `estimate: true` (and *estimate* in the
+example dashboard): their supplier ficha doesn't give every value, so treat them as a guide. Everything here is
+informative, not an offer or a bill.
+
+New tariffs added to the API show up as new sensors on their own. Each entry compares on its own, so if you add
+several entries you may want to turn the comparison off on all but one. The monthly cost uses a fixed consumption
+figure; reading it from your own energy sensor is not supported (a monthly meter resets at the start of the month,
+so its value is not a monthly consumption until the month ends).
+
+## Example dashboard
+
+[`examples/dashboard.yaml`](examples/dashboard.yaml) is a ready-to-paste Lovelace view (sections layout) with the
+price tiles, today's and tomorrow's prices for your tariff, all suppliers' 15-minute curves on one chart, the
+estimated monthly cost per supplier (chart and table, cheapest highlighted) and a short note on estimate versus exact.
+
+- It needs [apexcharts-card](https://github.com/RomRider/apexcharts-card) (HACS → Frontend). HACS registers the
+  Lovelace resource; on a manual install add it under Settings → Dashboards → ⋮ → Resources.
+- Paste it in the dashboard's raw configuration editor as a view.
+- The entity ids are those of a default install of Galp Plano Flexível, simple cycle
+  (`sensor.luz_indexada_galp_plano_flexivel_simples_…`). For another tariff or cycle, replace
+  `galp_plano_flexivel_simples` with your prefix (Settings → Devices & services → Luz Indexada → Entities). The
+  per-supplier suffixes (`…_repsol_leve_sem_mais`, `…_g9_smart_dynamic`, …) are the same on every install.
 
 ### ApexCharts card
 
@@ -138,9 +192,15 @@ try the integration for a few days; a normal install needs the **Pro** plan (10,
 | Midnight | 0 (cached tomorrow becomes today) |
 | Restarts and option changes | 0 (prices are cached on disk) |
 | The current price, every 15 minutes | 0 (computed locally) |
+| Supplier comparison: other tariffs' prices | 0 (same responses as yours) |
+| Supplier comparison: monthly cost (`/v1/compare`) | 1 a day, plus 1 when you change the consumption or the power |
+| Supplier comparison: tariff list, to leave withdrawn tariffs out | 1 a week |
+| Turning the comparison on with prices already cached | 1–2, once (fills the other tariffs for the cached days) |
 
-That's about **2 calls a day, ~60–70 a month**. Late publications, retries and errors can push it to ~4 a day
-(**~120–130 a month**), well inside Pro and over Basic. Errors back off from 15 minutes up to 2 hours, and a 429 waits at least an
+That's about **2 calls a day, ~60–70 a month** without the comparison, and **about 3 a day, ~95–105 a month** with it
+(the default). Late publications, retries and errors can push it to ~4 a day
+(**~120–130 a month**, ~160 with the comparison), well inside Pro and over Basic. A failed comparison is retried after
+6 hours and never delays the prices. Errors back off from 15 minutes up to 2 hours, and a 429 waits at least an
 hour, doubling up to 6. Every extra tariff entry has its own calls. Keep an eye on the *API calls this month* and
 *RapidAPI requests remaining* sensors.
 
@@ -157,6 +217,7 @@ uv venv -p 3.14 .venv && uv pip install --python .venv/bin/python -r requirement
 # Live check with the integration's own client (prints what the entities would show; never prints the key):
 LUZ_RAPIDAPI_KEY=... .venv/bin/python scripts/verify_live.py --tariff galp-plano-flexivel --cycle simples
 LUZ_BASE_URL=https://... LUZ_API_KEY=... .venv/bin/python scripts/verify_live.py
+# The supplier comparison is printed too (2 more calls); --kwh 300 --kva 10.35 to change it, --no-compare to skip it.
 ```
 
 Releases use Conventional Commits and release-please. The icon will be submitted to `home-assistant/brands`.
@@ -179,7 +240,19 @@ tri-horário, diário ou semanal.
 - **Entidades:** preço atual e próximo (€/kWh, com ou sem IVA a 23%), mínimo/máximo/média de hoje, início da janela
   mais barata de N horas, *Barato agora* (abaixo da média de hoje ou dentro da janela mais barata) e *Amanhã
   disponível*. Os atributos `raw_today`/`raw_tomorrow` servem para gráficos ApexCharts.
-- **Consumo da API:** cerca de 2 pedidos por dia (60 a 70 por mês). O preço atual é calculado localmente e os
+- **Comparar fornecedores** (ativo por omissão): preço médio de hoje e curvas de 15 minutos de todos os outros
+  tarifários (das mesmas respostas, sem pedidos extra), custo mensal estimado por fornecedor para o seu consumo e
+  potência contratada (opções *Consumo mensal* e *Potência contratada*) e o sensor *Fornecedor mais barato*, com a
+  poupança face ao seu tarifário. Os tarifários retirados (por exemplo Coopérnico Base 2.0) e os indisponíveis no
+  seu ciclo ficam de fora; os **estimate** estão marcados. Os valores são informativos, não são uma proposta nem uma
+  fatura.
+- **Dashboard de exemplo:** [`examples/dashboard.yaml`](examples/dashboard.yaml), uma vista Lovelace pronta a colar
+  (precisa do [apexcharts-card](https://github.com/RomRider/apexcharts-card), HACS → Frontend, com o recurso
+  Lovelace registado). Os ids correspondem a uma instalação de Galp Plano Flexível, ciclo simples; para outro
+  tarifário substitua `galp_plano_flexivel_simples` pelo seu prefixo (Definições → Dispositivos e serviços → Luz
+  Indexada → Entidades).
+- **Consumo da API:** cerca de 2 pedidos por dia (60 a 70 por mês) sem a comparação e cerca de 3 por dia (95 a 105
+  por mês) com ela: o custo mensal é pedido uma vez por dia e a lista de tarifários uma vez por semana. O preço atual é calculado localmente e os
   preços ficam em cache, por isso reiniciar o Home Assistant não gasta pedidos.
 - **IVA:** com a opção ativa aplica-se 23% a tudo. Numa fatura real, os primeiros 200 kWh por 30 dias (até
   6,9 kVA) pagam 6%.

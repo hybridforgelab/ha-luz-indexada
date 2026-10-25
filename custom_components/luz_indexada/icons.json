@@ -8,7 +8,10 @@
       "today_avg": { "default": "mdi:approximately-equal" },
       "cheapest_window_start": { "default": "mdi:clock-start" },
       "api_calls_month": { "default": "mdi:counter" },
-      "api_quota_remaining": { "default": "mdi:gauge" }
+      "api_quota_remaining": { "default": "mdi:gauge" },
+      "tariff_average_today": { "default": "mdi:chart-bell-curve" },
+      "tariff_monthly_cost": { "default": "mdi:cash-multiple" },
+      "cheapest_supplier": { "default": "mdi:trophy-outline" }
     },
     "binary_sensor": {
       "cheap_now": { "default": "mdi:cash-remove", "state": { "on": "mdi:cash-check" } },

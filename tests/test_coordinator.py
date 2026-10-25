@@ -261,7 +261,7 @@ async def test_rapidapi_entry_has_quota_sensor(
     entry = MockConfigEntry(
         domain=DOMAIN,
         data={**entry_data, CONF_MODE: MODE_RAPIDAPI, CONF_RAPIDAPI_HOST: DEFAULT_RAPIDAPI_HOST},
-        options={CONF_RAPIDAPI_HOST: host},
+        options={CONF_RAPIDAPI_HOST: host, "compare": False},
     )
     aioclient_mock.get(
         prices_url(TODAY, f"https://{host}"),

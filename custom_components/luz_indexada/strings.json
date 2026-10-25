@@ -11,7 +11,7 @@
       },
       "rapidapi": {
         "title": "RapidAPI",
-        "description": "Subscribe to Luz Indexada on RapidAPI and paste your X-RapidAPI-Key. This integration uses about 2-4 requests a day (60-130 a month), so it needs the Pro plan; Basic (15 requests/month) is only for a quick try.",
+        "description": "Subscribe to Luz Indexada on RapidAPI and paste your X-RapidAPI-Key. This integration uses about 3-5 requests a day with the supplier comparison (90-160 a month; 2-4 without it), so it needs the Pro plan; Basic (15 requests/month) is only for a quick try.",
         "data": {
           "api_key": "RapidAPI key",
           "rapidapi_host": "RapidAPI host"
@@ -35,10 +35,16 @@
           "tariff": "Tariff",
           "cycle": "Cycle",
           "include_vat": "Include 23% VAT",
-          "window_hours": "Cheapest window length (hours)"
+          "window_hours": "Cheapest window length (hours)",
+          "compare": "Compare suppliers",
+          "monthly_kwh": "Monthly consumption (kWh)",
+          "kva": "Contracted power (kVA)"
         },
         "data_description": {
-          "window_hours": "Length of the cheapest contiguous block, in steps of 0.25 h."
+          "window_hours": "Length of the cheapest contiguous block, in steps of 0.25 h.",
+          "compare": "Adds today's average price of every other tariff (from the same requests) and an estimated monthly cost per supplier (about 1 extra request a day).",
+          "monthly_kwh": "Used only for the monthly cost comparison (standard ERSE consumption profile).",
+          "kva": "Used only for the monthly cost comparison (power term)."
         }
       },
       "reauth_confirm": {
@@ -69,10 +75,16 @@
         "data": {
           "include_vat": "Include 23% VAT",
           "window_hours": "Cheapest window length (hours)",
-          "rapidapi_host": "RapidAPI host"
+          "rapidapi_host": "RapidAPI host",
+          "compare": "Compare suppliers",
+          "monthly_kwh": "Monthly consumption (kWh)",
+          "kva": "Contracted power (kVA)"
         },
         "data_description": {
-          "window_hours": "Length of the cheapest contiguous block, in steps of 0.25 h."
+          "window_hours": "Length of the cheapest contiguous block, in steps of 0.25 h.",
+          "compare": "Adds today's average price of every other tariff (from the same requests) and an estimated monthly cost per supplier (about 1 extra request a day).",
+          "monthly_kwh": "Used only for the monthly cost comparison (standard ERSE consumption profile).",
+          "kva": "Used only for the monthly cost comparison (power term)."
         }
       }
     }
@@ -113,6 +125,15 @@
       },
       "api_quota_remaining": {
         "name": "RapidAPI requests remaining"
+      },
+      "tariff_average_today": {
+        "name": "Average price today — {tariff}"
+      },
+      "tariff_monthly_cost": {
+        "name": "Estimated monthly cost — {tariff}"
+      },
+      "cheapest_supplier": {
+        "name": "Cheapest supplier"
       }
     },
     "binary_sensor": {
