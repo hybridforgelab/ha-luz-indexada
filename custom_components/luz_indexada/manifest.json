@@ -1,9 +1,6 @@
 {
   "domain": "luz_indexada",
   "name": "Luz Indexada",
-  "categories": [
-    "energy.energy_prices"
-  ],
   "codeowners": [
     "@hybridforgelab"
   ],
