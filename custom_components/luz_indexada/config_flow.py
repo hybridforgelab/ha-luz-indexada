@@ -21,6 +21,7 @@ from homeassistant.helpers.selector import (
     TextSelectorConfig,
     TextSelectorType,
 )
+from homeassistant.util import dt as dt_util
 import voluptuous as vol
 
 from . import build_client
@@ -52,6 +53,13 @@ URL = TextSelector(TextSelectorConfig(type=TextSelectorType.URL))
 WINDOW = NumberSelector(
     NumberSelectorConfig(min=MIN_WINDOW_HOURS, max=MAX_WINDOW_HOURS, step=0.25, mode=NumberSelectorMode.BOX)
 )
+
+
+def _selectable(tariffs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Tariffs worth offering: drop the ones withdrawn and replaced (e.g. Coopérnico Base 2.0 → ÚNICO)."""
+    today = dt_util.now().date().isoformat()
+    live = [t for t in tariffs if not (t.get("replaced_by") and (t.get("valid_until") or "9999") < today)]
+    return live or tariffs
 
 
 def _options_schema(defaults: Mapping[str, Any]) -> dict[vol.Marker, Any]:
@@ -156,15 +164,17 @@ class LuzConfigFlow(ConfigFlow, domain=DOMAIN):
                         CONF_WINDOW_HOURS: float(user_input[CONF_WINDOW_HOURS]),
                     },
                 )
+        offered = _selectable(self._tariffs)
         tariff_options = [
             SelectOptionDict(
                 value=t["id"],
                 label=f"{t.get('name') or t['id']}{' (estimate)' if t.get('status') == 'estimate' else ''}",
             )
-            for t in self._tariffs
+            for t in offered
         ]
+        default = next((t["id"] for t in offered if t.get("status") == "exact"), offered[0]["id"])
         schema = {
-            vol.Required(CONF_TARIFF, default=self._tariffs[0]["id"]): SelectSelector(
+            vol.Required(CONF_TARIFF, default=default): SelectSelector(
                 SelectSelectorConfig(options=tariff_options, mode=SelectSelectorMode.DROPDOWN)
             ),
             vol.Required(CONF_CYCLE, default=DEFAULT_CYCLE): SelectSelector(
