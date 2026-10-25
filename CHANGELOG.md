@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/hybridforgelab/ha-luz-indexada/compare/v0.2.2...v0.3.0) (2026-10-25)
+
+
+### Features
+
+* supplier comparison with per-tariff curves, monthly cost and cheapest supplier ([#8](https://github.com/hybridforgelab/ha-luz-indexada/issues/8)) ([c1b48ed](https://github.com/hybridforgelab/ha-luz-indexada/commit/c1b48edef95bb1ebb2d2ef55cf03607ccf7bc0ee))
+
 ## [0.2.2](https://github.com/hybridforgelab/ha-luz-indexada/compare/v0.2.1...v0.2.2) (2026-10-25)
 
 
