@@ -1,7 +1,12 @@
 {
   "domain": "luz_indexada",
   "name": "Luz Indexada",
-  "codeowners": ["@hybridforgelab"],
+  "categories": [
+    "energy.energy_prices"
+  ],
+  "codeowners": [
+    "@hybridforgelab"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/hybridforgelab/ha-luz-indexada",
   "integration_type": "service",
