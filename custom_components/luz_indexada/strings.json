@@ -11,7 +11,7 @@
       },
       "rapidapi": {
         "title": "RapidAPI",
-        "description": "Subscribe to Luz Indexada on RapidAPI and paste your X-RapidAPI-Key. The Basic plan (150 requests/month) is enough: this integration uses about 2-4 requests a day.",
+        "description": "Subscribe to Luz Indexada on RapidAPI and paste your X-RapidAPI-Key. This integration uses about 2-4 requests a day (60-130 a month), so it needs the Pro plan; Basic (15 requests/month) is only for a quick try.",
         "data": {
           "api_key": "RapidAPI key",
           "rapidapi_host": "RapidAPI host"
