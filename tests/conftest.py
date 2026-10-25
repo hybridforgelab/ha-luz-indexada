@@ -11,6 +11,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.luz_indexada.const import (
     CONF_BASE_URL,
+    CONF_COMPARE,
     CONF_CYCLE,
     CONF_INCLUDE_VAT,
     CONF_MODE,
@@ -73,6 +74,40 @@ def mock_entry(entry_data: dict[str, Any]) -> MockConfigEntry:
         domain=DOMAIN,
         title="Galp Plano Flexível (simples)",
         data=entry_data,
-        options={CONF_INCLUDE_VAT: True, CONF_WINDOW_HOURS: 2.0},
+        options={CONF_INCLUDE_VAT: True, CONF_WINDOW_HOURS: 2.0, CONF_COMPARE: False},
         unique_id=f"{TARIFF}_simples",
     )
+
+
+# Other tariffs added to a single-tariff fixture to mimic /v1/prices without the tariff filter:
+# (id, name, status, price factor). coopernico-base-2 is withdrawn in tariffs.json (replaced_by + past
+# valid_until) but, like the live API, its price entry doesn't say so.
+PEERS = (
+    ("repsol-leve-sem-mais", "Repsol Leve Sem Mais", "exact", 0.9),
+    ("g9-smart-dynamic", "G9 Smart Dynamic", "estimate", 1.1),
+    ("coopernico-base-2", "Coopérnico Base 2.0", "estimate", 0.8),
+    ("endesa-dinamica", "Endesa Tarifa Dinâmica", "exact", 1.05),
+)
+
+
+def all_tariffs(day_body: dict[str, Any]) -> dict[str, Any]:
+    """A /v1/prices body with every tariff (plus one unavailable entry)."""
+    body = json.loads(json.dumps(day_body))
+    own = body["tariffs"][0]
+    for tariff, name, status, factor in PEERS:
+        peer = json.loads(json.dumps(own))
+        peer.update(tariff=tariff, name=name, status=status)
+        for row in peer["prices"]:
+            if row["total"] is not None:
+                row["total"], row["total_vat23"] = (
+                    round(row["total"] * factor, 6),
+                    round(row["total_vat23"] * factor, 6),
+                )
+        body["tariffs"].append(peer)
+    body["tariffs"].append({"tariff": "coopernico-unico", "available": False, "reason": "no prices", "prices": []})
+    return body
+
+
+def compare_url(base: str = BASE) -> str:
+    """URL matcher for /v1/compare."""
+    return f"{base}/v1/compare"

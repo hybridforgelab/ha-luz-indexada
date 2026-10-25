@@ -15,9 +15,12 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 
 from custom_components.luz_indexada.const import (
     CONF_BASE_URL,
+    CONF_COMPARE,
     CONF_CYCLE,
     CONF_INCLUDE_VAT,
+    CONF_KVA,
     CONF_MODE,
+    CONF_MONTHLY_KWH,
     CONF_RAPIDAPI_HOST,
     CONF_TARIFF,
     CONF_WINDOW_HOURS,
@@ -60,7 +63,15 @@ async def test_direct_flow(hass: HomeAssistant, aioclient_mock: AiohttpClientMoc
     assert result["type"] is FlowResultType.FORM and result["step_id"] == "tariff"
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
-        {CONF_TARIFF: TARIFF, CONF_CYCLE: "bi-diario", CONF_INCLUDE_VAT: False, CONF_WINDOW_HOURS: 3},
+        {
+            CONF_TARIFF: TARIFF,
+            CONF_CYCLE: "bi-diario",
+            CONF_INCLUDE_VAT: False,
+            CONF_WINDOW_HOURS: 3,
+            CONF_COMPARE: True,
+            CONF_MONTHLY_KWH: 320,
+            CONF_KVA: "10.35",
+        },
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["title"] == "Galp Plano Flexível (bi-diario)"
@@ -72,7 +83,13 @@ async def test_direct_flow(hass: HomeAssistant, aioclient_mock: AiohttpClientMoc
         "tariff_name": "Galp Plano Flexível",
         CONF_CYCLE: "bi-diario",
     }
-    assert result["options"] == {CONF_INCLUDE_VAT: False, CONF_WINDOW_HOURS: 3.0}
+    assert result["options"] == {
+        CONF_INCLUDE_VAT: False,
+        CONF_WINDOW_HOURS: 3.0,
+        CONF_COMPARE: True,
+        CONF_MONTHLY_KWH: 320.0,
+        CONF_KVA: "10.35",
+    }
     assert result["result"].unique_id == f"{TARIFF}_bi-diario"
 
 
@@ -156,15 +173,26 @@ async def test_reauth(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, 
 
 
 async def test_options_direct(hass: HomeAssistant, mock_entry: MockConfigEntry) -> None:
-    """Direct mode: VAT + window length only."""
+    """Direct mode: VAT, window length and comparison, no host; defaults for options that didn't exist before."""
     mock_entry.add_to_hass(hass)
+    hass.config_entries.async_update_entry(mock_entry, options={**mock_entry.options, CONF_KVA: 7})
     result = await hass.config_entries.options.async_init(mock_entry.entry_id, context={"show_advanced_options": True})
-    assert CONF_RAPIDAPI_HOST not in result["data_schema"].schema
+    schema = result["data_schema"].schema
+    assert CONF_RAPIDAPI_HOST not in schema
+    defaults = {str(k): k.default() for k in schema}
+    assert defaults[CONF_COMPARE] is False and defaults[CONF_MONTHLY_KWH] == 250 and defaults[CONF_KVA] == "6.9"
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], {CONF_INCLUDE_VAT: False, CONF_WINDOW_HOURS: 1.5}
+        result["flow_id"],
+        {CONF_INCLUDE_VAT: False, CONF_WINDOW_HOURS: 1.5, CONF_COMPARE: True, CONF_MONTHLY_KWH: 180, CONF_KVA: "13.8"},
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert mock_entry.options == {CONF_INCLUDE_VAT: False, CONF_WINDOW_HOURS: 1.5}
+    assert mock_entry.options == {
+        CONF_INCLUDE_VAT: False,
+        CONF_WINDOW_HOURS: 1.5,
+        CONF_COMPARE: True,
+        CONF_MONTHLY_KWH: 180.0,
+        CONF_KVA: "13.8",
+    }
 
 
 async def test_options_rapidapi_host(hass: HomeAssistant, entry_data: dict[str, Any]) -> None:

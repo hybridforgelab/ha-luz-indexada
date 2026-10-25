@@ -4,9 +4,27 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from .api import DayPrices, Slot
 from .const import LISBON
+
+if TYPE_CHECKING:
+    from .compare import Comparison
+
+
+def raw_slots(day: DayPrices | None, include_vat: bool) -> list[dict[str, str | float | None]]:
+    """Slots as [{start, end, value}] in local time (Nord Pool / ENTSO-e style, ApexCharts friendly)."""
+    if day is None:
+        return []
+    return [
+        {
+            "start": s.start.astimezone(LISBON).isoformat(),
+            "end": s.end.astimezone(LISBON).isoformat(),
+            "value": s.value(include_vat),
+        }
+        for s in day.slots
+    ]
 
 
 @dataclass(frozen=True, slots=True)
@@ -36,6 +54,7 @@ class PriceState:
     today_min_at: datetime | None
     today_max_at: datetime | None
     window: Window | None
+    comparison: Comparison | None = None
 
     @property
     def tomorrow_available(self) -> bool:
@@ -53,16 +72,7 @@ class PriceState:
 
     def raw(self, day: DayPrices | None) -> list[dict[str, str | float | None]]:
         """Slots as [{start, end, value}] in local time (Nord Pool / ENTSO-e style, ApexCharts friendly)."""
-        if day is None:
-            return []
-        return [
-            {
-                "start": s.start.astimezone(LISBON).isoformat(),
-                "end": s.end.astimezone(LISBON).isoformat(),
-                "value": s.value(self.include_vat),
-            }
-            for s in day.slots
-        ]
+        return raw_slots(day, self.include_vat)
 
     def values(self, day: DayPrices | None) -> list[float | None]:
         """Plain list of prices for the day."""
