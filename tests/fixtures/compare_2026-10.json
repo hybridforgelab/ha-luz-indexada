@@ -1,0 +1,314 @@
+{
+ "month": "2026-10",
+ "cycle": "simples",
+ "kva": 6.9,
+ "results": [
+  {
+   "tariff": "coopernico-base-2",
+   "name": "Coopérnico Base 2.0",
+   "available": true,
+   "status": "estimate",
+   "cycle": "simples",
+   "kva": 6.9,
+   "month": "2026-10",
+   "kwh": 250.0,
+   "days_in_month": 31,
+   "days_priced": 2,
+   "coverage": 0.0662,
+   "avg_energy_price_eur_kwh": 0.275068,
+   "lines": [
+    {
+     "item": "energy (reduced-rate kWh)",
+     "base_eur": 56.6408,
+     "vat_rate": 0.06,
+     "vat_eur": 3.3984
+    },
+    {
+     "item": "energy",
+     "base_eur": 11.8763,
+     "vat_rate": 0.23,
+     "vat_eur": 2.7315
+    },
+    {
+     "item": "IEC",
+     "base_eur": 0.25,
+     "vat_rate": 0.23,
+     "vat_eur": 0.0575
+    },
+    {
+     "item": "power",
+     "base_eur": 11.408,
+     "vat_rate": 0.23,
+     "vat_eur": 2.6238
+    },
+    {
+     "item": "Contribuição Audiovisual",
+     "base_eur": 2.85,
+     "vat_rate": 0.06,
+     "vat_eur": 0.171
+    },
+    {
+     "item": "DGEG fee",
+     "base_eur": 0.07,
+     "vat_rate": 0.23,
+     "vat_eur": 0.0161
+    }
+   ],
+   "total_excl_vat_eur": 83.1,
+   "vat_eur": 9.0,
+   "total_eur": 92.09,
+   "flags": [
+    "projected",
+    "estimate"
+   ]
+  },
+  {
+   "tariff": "galp-plano-flexivel",
+   "name": "Galp Plano Flexível",
+   "available": true,
+   "status": "exact",
+   "cycle": "simples",
+   "kva": 6.9,
+   "month": "2026-10",
+   "kwh": 250.0,
+   "days_in_month": 31,
+   "days_priced": 2,
+   "coverage": 0.0662,
+   "avg_energy_price_eur_kwh": 0.260892,
+   "lines": [
+    {
+     "item": "energy (reduced-rate kWh)",
+     "base_eur": 53.7109,
+     "vat_rate": 0.06,
+     "vat_eur": 3.2227
+    },
+    {
+     "item": "energy",
+     "base_eur": 11.262,
+     "vat_rate": 0.23,
+     "vat_eur": 2.5903
+    },
+    {
+     "item": "IEC",
+     "base_eur": 0.25,
+     "vat_rate": 0.23,
+     "vat_eur": 0.0575
+    },
+    {
+     "item": "power",
+     "base_eur": 14.7033,
+     "vat_rate": 0.23,
+     "vat_eur": 3.3818
+    },
+    {
+     "item": "Contribuição Audiovisual",
+     "base_eur": 2.85,
+     "vat_rate": 0.06,
+     "vat_eur": 0.171
+    },
+    {
+     "item": "DGEG fee",
+     "base_eur": 0.07,
+     "vat_rate": 0.23,
+     "vat_eur": 0.0161
+    }
+   ],
+   "total_excl_vat_eur": 82.85,
+   "vat_eur": 9.44,
+   "total_eur": 92.29,
+   "flags": [
+    "projected"
+   ]
+  },
+  {
+   "tariff": "repsol-leve-sem-mais",
+   "name": "Repsol Leve Sem Mais",
+   "available": true,
+   "status": "exact",
+   "cycle": "simples",
+   "kva": 6.9,
+   "month": "2026-10",
+   "kwh": 250.0,
+   "days_in_month": 31,
+   "days_priced": 2,
+   "coverage": 0.0662,
+   "avg_energy_price_eur_kwh": 0.267399,
+   "lines": [
+    {
+     "item": "energy (reduced-rate kWh)",
+     "base_eur": 55.0557,
+     "vat_rate": 0.06,
+     "vat_eur": 3.3033
+    },
+    {
+     "item": "energy",
+     "base_eur": 11.5439,
+     "vat_rate": 0.23,
+     "vat_eur": 2.6551
+    },
+    {
+     "item": "IEC",
+     "base_eur": 0.25,
+     "vat_rate": 0.23,
+     "vat_eur": 0.0575
+    },
+    {
+     "item": "power",
+     "base_eur": 16.0766,
+     "vat_rate": 0.23,
+     "vat_eur": 3.6976
+    },
+    {
+     "item": "Contribuição Audiovisual",
+     "base_eur": 2.85,
+     "vat_rate": 0.06,
+     "vat_eur": 0.171
+    },
+    {
+     "item": "DGEG fee",
+     "base_eur": 0.07,
+     "vat_rate": 0.23,
+     "vat_eur": 0.0161
+    }
+   ],
+   "total_excl_vat_eur": 85.85,
+   "vat_eur": 9.9,
+   "total_eur": 95.75,
+   "flags": [
+    "projected"
+   ]
+  },
+  {
+   "tariff": "g9-smart-dynamic",
+   "name": "G9 Smart Dynamic",
+   "available": true,
+   "status": "estimate",
+   "cycle": "simples",
+   "kva": 6.9,
+   "month": "2026-10",
+   "kwh": 250.0,
+   "days_in_month": 31,
+   "days_priced": 2,
+   "coverage": 0.0662,
+   "avg_energy_price_eur_kwh": 0.269143,
+   "lines": [
+    {
+     "item": "energy (reduced-rate kWh)",
+     "base_eur": 55.4161,
+     "vat_rate": 0.06,
+     "vat_eur": 3.325
+    },
+    {
+     "item": "energy",
+     "base_eur": 11.6195,
+     "vat_rate": 0.23,
+     "vat_eur": 2.6725
+    },
+    {
+     "item": "IEC",
+     "base_eur": 0.25,
+     "vat_rate": 0.23,
+     "vat_eur": 0.0575
+    },
+    {
+     "item": "power",
+     "base_eur": 19.3502,
+     "vat_rate": 0.23,
+     "vat_eur": 4.4505
+    },
+    {
+     "item": "Contribuição Audiovisual",
+     "base_eur": 2.85,
+     "vat_rate": 0.06,
+     "vat_eur": 0.171
+    },
+    {
+     "item": "DGEG fee",
+     "base_eur": 0.07,
+     "vat_rate": 0.23,
+     "vat_eur": 0.0161
+    }
+   ],
+   "total_excl_vat_eur": 89.56,
+   "vat_eur": 10.69,
+   "total_eur": 100.25,
+   "flags": [
+    "projected",
+    "estimate"
+   ]
+  },
+  {
+   "tariff": "endesa-dinamica",
+   "name": "Endesa Tarifa Dinâmica",
+   "available": true,
+   "status": "estimate",
+   "cycle": "simples",
+   "kva": 6.9,
+   "month": "2026-10",
+   "kwh": 250.0,
+   "days_in_month": 31,
+   "days_priced": 2,
+   "coverage": 0.0662,
+   "avg_energy_price_eur_kwh": 0.278207,
+   "lines": [
+    {
+     "item": "energy (reduced-rate kWh)",
+     "base_eur": 57.2894,
+     "vat_rate": 0.06,
+     "vat_eur": 3.4374
+    },
+    {
+     "item": "energy",
+     "base_eur": 12.0123,
+     "vat_rate": 0.23,
+     "vat_eur": 2.7628
+    },
+    {
+     "item": "IEC",
+     "base_eur": 0.25,
+     "vat_rate": 0.23,
+     "vat_eur": 0.0575
+    },
+    {
+     "item": "power",
+     "base_eur": 12.8216,
+     "vat_rate": 0.23,
+     "vat_eur": 2.949
+    },
+    {
+     "item": "management fee (CG)",
+     "base_eur": 5.0959,
+     "vat_rate": 0.23,
+     "vat_eur": 1.1721
+    },
+    {
+     "item": "Contribuição Audiovisual",
+     "base_eur": 2.85,
+     "vat_rate": 0.06,
+     "vat_eur": 0.171
+    },
+    {
+     "item": "DGEG fee",
+     "base_eur": 0.07,
+     "vat_rate": 0.23,
+     "vat_eur": 0.0161
+    }
+   ],
+   "total_excl_vat_eur": 90.39,
+   "vat_eur": 10.57,
+   "total_eur": 100.96,
+   "flags": [
+    "projected",
+    "estimate"
+   ]
+  },
+  {
+   "tariff": "coopernico-unico",
+   "available": false,
+   "reason": "no published prices for 2026-10"
+  }
+ ],
+ "notes": [
+  "VAT: 6% on the first 200 kWh/30 days (300 for large families) when ≤ 6,9 kVA, and on the TAR power term when ≤ 3,45 kVA; 23% otherwise; CAV at 6%."
+ ]
+}

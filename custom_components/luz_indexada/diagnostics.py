@@ -42,6 +42,18 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: LuzConf
             "backoff_until": c.backoff_until.isoformat() if c.backoff_until else None,
             "last_error": c.last_error,
         },
+        "comparison": {
+            "enabled": c.compare,
+            "monthly_kwh": c.monthly_kwh,
+            "kva": c.kva,
+            "tariffs_today": sorted(c.peers_today),
+            "tariffs_tomorrow": sorted(c.peers_tomorrow),
+            "costs": sorted(c.compare_result.costs) if c.compare_result else [],
+            "compare_day": c.compare_result.fetched_day if c.compare_result else None,
+            "compare_next_attempt": c.compare_next_attempt.isoformat() if c.compare_next_attempt else None,
+            "compare_error": c.compare_error,
+            "catalogue_fetched": c.catalogue_fetched.isoformat() if c.catalogue_fetched else None,
+        },
         "calls": {"month": c.calls_month, "month_count": c.calls_month_count, "total": c.calls_total},
         "quota": {"limit": c.client.quota_limit, "remaining": c.client.quota_remaining},
     }
