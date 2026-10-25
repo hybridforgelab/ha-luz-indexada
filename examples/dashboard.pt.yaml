@@ -1,0 +1,252 @@
+# Luz Indexada: dashboard de exemplo em português (uma vista Lovelace, layout "sections").
+#
+# Use este ficheiro se o Home Assistant estiver em português: os entity_id são criados a partir dos
+# nomes traduzidos (…_preco_atual, …_custo_mensal_estimado_…). Com o HA em inglês use dashboard.yaml.
+#
+# Requisitos
+#   * apexcharts-card (HACS → Frontend → "apexcharts-card"). O HACS regista o recurso Lovelace; numa
+#     instalação manual adicione /local/apexcharts-card.js como módulo JavaScript em
+#     Definições → Painéis → ⋮ → Recursos. Sem ele os três gráficos mostram "Configuration error".
+#   * "Comparar fornecedores" ligado (por omissão) para a secção de comparação.
+#
+# Como usar
+#   Definições → Painéis → abrir um painel → ⋮ → Editar painel → ⋮ → Editor de configuração em bruto,
+#   e cole este ficheiro como uma entrada de `views:` (indentado dois espaços), ou crie um painel novo
+#   e cole-o como única vista.
+#
+# Entity ids
+#   Correspondem a uma instalação de Galp Plano Flexível, ciclo simples:
+#     sensor.luz_indexada_galp_plano_flexivel_simples_…
+#   Para outra tarifa/ciclo, veja o prefixo em Definições → Dispositivos e serviços → Luz Indexada →
+#   (dispositivo) → Entidades, e substitua "galp_plano_flexivel_simples" neste ficheiro. Os sensores
+#   por fornecedor terminam com o nome do fornecedor (…_preco_medio_hoje_repsol_leve_sem_mais,
+#   …_custo_mensal_estimado_g9_smart_dynamic).
+title: Luz Indexada
+path: luz-indexada
+icon: mdi:flash
+type: sections
+max_columns: 3
+sections:
+  - type: grid
+    cards:
+      - type: heading
+        heading: Preço agora
+        heading_style: title
+      - type: tile
+        entity: sensor.luz_indexada_galp_plano_flexivel_simples_preco_atual
+        name: Agora
+      - type: tile
+        entity: sensor.luz_indexada_galp_plano_flexivel_simples_proximo_preco
+        name: Próximos 15 min
+      - type: tile
+        entity: sensor.luz_indexada_galp_plano_flexivel_simples_preco_medio_hoje
+        name: Média de hoje
+      - type: tile
+        entity: binary_sensor.luz_indexada_galp_plano_flexivel_simples_barato_agora
+        name: Barato agora
+      - type: tile
+        entity: sensor.luz_indexada_galp_plano_flexivel_simples_preco_minimo_hoje
+        name: Mínimo de hoje
+      - type: tile
+        entity: sensor.luz_indexada_galp_plano_flexivel_simples_preco_maximo_hoje
+        name: Máximo de hoje
+      - type: tile
+        entity: sensor.luz_indexada_galp_plano_flexivel_simples_inicio_da_janela_mais_barata
+        name: Janela mais barata
+      - type: tile
+        entity: binary_sensor.luz_indexada_galp_plano_flexivel_simples_amanha_disponivel
+        name: Amanhã publicado
+
+  - type: grid
+    column_span: 2
+    cards:
+      - type: heading
+        heading: A sua tarifa, hoje e amanhã
+        heading_style: title
+      - type: custom:apexcharts-card
+        grid_options:
+          columns: full
+        header:
+          show: true
+          title: €/kWh de 15 em 15 minutos
+          show_states: true
+        graph_span: 2d
+        span:
+          start: day
+        now:
+          show: true
+          label: agora
+        yaxis:
+          - min: 0
+            decimals: 2
+        series:
+          - entity: sensor.luz_indexada_galp_plano_flexivel_simples_preco_atual
+            name: Preço
+            type: column
+            color: "#2a78d6"
+            float_precision: 4
+            show:
+              in_header: raw
+            data_generator: |
+              return [...entity.attributes.raw_today, ...entity.attributes.raw_tomorrow]
+                .filter((s) => s.value !== null)
+                .map((s) => [new Date(s.start).getTime(), s.value]);
+
+  - type: grid
+    column_span: 3
+    cards:
+      - type: heading
+        heading: Comparar fornecedores
+        heading_style: title
+      - type: tile
+        entity: sensor.luz_indexada_galp_plano_flexivel_simples_fornecedor_mais_barato
+        name: Fornecedor mais barato para o seu consumo
+        grid_options:
+          columns: full
+      - type: custom:apexcharts-card
+        grid_options:
+          columns: full
+        header:
+          show: true
+          title: Todos os fornecedores, €/kWh de 15 em 15 minutos (hoje e amanhã)
+        graph_span: 2d
+        span:
+          start: day
+        now:
+          show: true
+          label: agora
+        yaxis:
+          - min: 0
+            decimals: 2
+        apex_config:
+          legend:
+            show: true
+          tooltip:
+            shared: true
+        series:
+          - entity: sensor.luz_indexada_galp_plano_flexivel_simples_preco_medio_hoje_galp_plano_flexivel
+            name: Galp
+            color: "#2a78d6"
+            curve: stepline
+            stroke_width: 2
+            float_precision: 4
+            data_generator: &curve |
+              return [...entity.attributes.raw_today, ...entity.attributes.raw_tomorrow]
+                .filter((s) => s.value !== null)
+                .map((s) => [new Date(s.start).getTime(), s.value]);
+          - entity: sensor.luz_indexada_galp_plano_flexivel_simples_preco_medio_hoje_repsol_leve_sem_mais
+            name: Repsol
+            color: "#eb6834"
+            curve: stepline
+            stroke_width: 2
+            float_precision: 4
+            data_generator: *curve
+          - entity: sensor.luz_indexada_galp_plano_flexivel_simples_preco_medio_hoje_g9_smart_dynamic
+            name: G9 (estimativa)
+            color: "#1baf7a"
+            curve: stepline
+            stroke_width: 2
+            float_precision: 4
+            data_generator: *curve
+          - entity: sensor.luz_indexada_galp_plano_flexivel_simples_preco_medio_hoje_endesa_tarifa_dinamica
+            name: Endesa (estimativa)
+            color: "#eda100"
+            curve: stepline
+            stroke_width: 2
+            float_precision: 4
+            data_generator: *curve
+      - type: custom:apexcharts-card
+        grid_options:
+          columns: full
+        header:
+          show: true
+          title: Custo mensal estimado (€)
+          show_states: true
+        graph_span: 1d
+        span:
+          start: day
+        yaxis:
+          - min: 0
+            decimals: 0
+        apex_config:
+          legend:
+            show: true
+          xaxis:
+            labels:
+              show: false
+          plotOptions:
+            bar:
+              columnWidth: 70%
+              borderRadius: 4
+              borderRadiusApplication: end
+        series:
+          - entity: sensor.luz_indexada_galp_plano_flexivel_simples_custo_mensal_estimado_galp_plano_flexivel
+            name: Galp
+            type: column
+            color: "#2a78d6"
+            float_precision: 2
+            show: &cost_show
+              datalabels: true
+              in_header: true
+            data_generator: &cost |
+              return [[moment().startOf("day").add(12, "hours").valueOf(), Number(entity.state)]];
+          - entity: sensor.luz_indexada_galp_plano_flexivel_simples_custo_mensal_estimado_repsol_leve_sem_mais
+            name: Repsol
+            type: column
+            color: "#eb6834"
+            float_precision: 2
+            show: *cost_show
+            data_generator: *cost
+          - entity: sensor.luz_indexada_galp_plano_flexivel_simples_custo_mensal_estimado_g9_smart_dynamic
+            name: G9 (estimativa)
+            type: column
+            color: "#1baf7a"
+            float_precision: 2
+            show: *cost_show
+            data_generator: *cost
+          - entity: sensor.luz_indexada_galp_plano_flexivel_simples_custo_mensal_estimado_endesa_tarifa_dinamica
+            name: Endesa (estimativa)
+            type: column
+            color: "#eda100"
+            float_precision: 2
+            show: *cost_show
+            data_generator: *cost
+      - type: markdown
+        grid_options:
+          columns: full
+        title: Custo mensal por fornecedor
+        content: |
+          {%- set e = 'sensor.luz_indexada_galp_plano_flexivel_simples_fornecedor_mais_barato' -%}
+          {%- set rows = state_attr(e, 'tariffs') or [] -%}
+          {%- if rows %}
+          | Fornecedor | €/mês | Poupança vs a sua |
+          |:--|--:|--:|
+          {%- for t in rows %}
+          | {{ ('**' ~ t.name ~ '** (mais barato)') if loop.first else t.name }}{{ ' *estimativa*' if t.estimate }}{{ ' · *a sua*' if t.selected }} | {{ '%.2f' | format(t.cost) }} | {{ ('%+.2f' | format(t.saving)) if t.saving is not none else '–' }} |
+          {%- endfor %}
+
+          {{ state_attr(e, 'monthly_kwh') | int }} kWh/mês a {{ state_attr(e, 'kva') }} kVA, {{ state_attr(e, 'month') }},
+          {{ 'IVA incluído' if state_attr(e, 'vat_included') else 'sem IVA' }}. Poupança positiva = mudar ficaria mais barato.
+          {%- else %}
+          A comparação ainda não está disponível (atualiza uma vez por dia). Confirme que *Comparar fornecedores* está ligado nas opções.
+          {%- endif %}
+      - type: markdown
+        grid_options:
+          columns: full
+        title: Como ler isto
+        content: |
+          Tarifas **exatas** usam a fórmula e os termos publicados pelo fornecedor. Tarifas **estimativa** usam
+          valores indicativos onde a ficha não os dá todos, por isso os preços podem desviar-se: sirvam-se delas
+          como orientação.
+
+          As curvas de 15 minutos são o preço final por kWh (OMIE + perdas + termos do fornecedor + tarifa de
+          acesso + IEC). O sensor *Preço médio hoje* de cada fornecedor guarda a curva completa de hoje e amanhã.
+
+          O **custo mensal** é calculado pela API para um perfil de consumo padrão da ERSE, com o consumo e a
+          potência definidos nas opções da integração (*Configurar*), para o mês corrente e com o IVA real
+          (6% nos primeiros 200 kWh por 30 dias até 6,9 kVA, 23% no resto). Os dias ainda sem preço são
+          projetados. Inclui potência, IEC, contribuição audiovisual e taxa DGEG; não inclui descontos,
+          fidelizações nem autoconsumo.
+
+          Valores informativos, não são uma oferta nem uma fatura. Confirme os termos atuais do fornecedor antes
+          de mudar. Preços: OMIE. Tarifas de acesso: ERSE. Perdas: E-REDES.

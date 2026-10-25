@@ -24,7 +24,7 @@ Each price is OMIE + losses + supplier terms + network tariff (TAR) + IEC, per t
   (from the same requests, no extra calls), an estimated monthly cost per supplier for your consumption and
   contracted power, and a *Cheapest supplier* sensor with the saving versus your tariff. See
   [Supplier comparison](#supplier-comparison).
-- A ready-to-paste [example dashboard](examples/dashboard.yaml).
+- A ready-to-paste [example dashboard](examples/dashboard.yaml) ([Portuguese version](examples/dashboard.pt.yaml), for Home Assistant set to Portuguese).
 - Very few API calls (see [API usage](#api-usage)). The current price is computed locally every 15 minutes and the
   prices are cached, so a restart costs no calls.
 - Handles the DST days (92 or 100 quarter-hours) and the pending last hour of the day.
@@ -136,6 +136,8 @@ estimated monthly cost per supplier (chart and table, cheapest highlighted) and 
 - It needs [apexcharts-card](https://github.com/RomRider/apexcharts-card) (HACS → Frontend). HACS registers the
   Lovelace resource; on a manual install add it under Settings → Dashboards → ⋮ → Resources.
 - Paste it in the dashboard's raw configuration editor as a view.
+- If your Home Assistant is set to Portuguese, entity ids are created from the Portuguese names (`…_preco_atual`,
+  `…_custo_mensal_estimado_…`): use [`examples/dashboard.pt.yaml`](examples/dashboard.pt.yaml) instead.
 - The entity ids are those of a default install of Galp Plano Flexível, simple cycle
   (`sensor.luz_indexada_galp_plano_flexivel_simples_…`). For another tariff or cycle, replace
   `galp_plano_flexivel_simples` with your prefix (Settings → Devices & services → Luz Indexada → Entities). The
@@ -246,7 +248,7 @@ tri-horário, diário ou semanal.
   poupança face ao seu tarifário. Os tarifários retirados (por exemplo Coopérnico Base 2.0) e os indisponíveis no
   seu ciclo ficam de fora; os **estimate** estão marcados. Os valores são informativos, não são uma proposta nem uma
   fatura.
-- **Dashboard de exemplo:** [`examples/dashboard.yaml`](examples/dashboard.yaml), uma vista Lovelace pronta a colar
+- **Dashboard de exemplo:** [`examples/dashboard.pt.yaml`](examples/dashboard.pt.yaml) se o Home Assistant estiver em português (os entity_id saem dos nomes traduzidos); [`examples/dashboard.yaml`](examples/dashboard.yaml) se estiver em inglês, uma vista Lovelace pronta a colar
   (precisa do [apexcharts-card](https://github.com/RomRider/apexcharts-card), HACS → Frontend, com o recurso
   Lovelace registado). Os ids correspondem a uma instalação de Galp Plano Flexível, ciclo simples; para outro
   tarifário substitua `galp_plano_flexivel_simples` pelo seu prefixo (Definições → Dispositivos e serviços → Luz
