@@ -44,7 +44,7 @@ Manual install: copy `custom_components/luz_indexada` into your `config/custom_c
 ## Configuration
 
 1. Choose how you reach the API:
-   - **RapidAPI key** (recommended): subscribe to *Luz Indexada* on RapidAPI (the Basic plan is enough) and paste
+   - **RapidAPI key** (recommended): subscribe to *Luz Indexada* on RapidAPI (a normal install needs the Pro plan; Basic is only for trying it) and paste
      your `X-RapidAPI-Key`. With *advanced mode* turned on in your user profile you can also change the RapidAPI
      host.
    - **Direct API**: a base URL and a bearer key, for self-hosted or test deployments.
@@ -126,7 +126,8 @@ automation:
 
 ## API usage
 
-The RapidAPI Basic plan allows **150 requests per month**, and this integration is built to stay well inside it:
+This integration is built to use very few calls. The RapidAPI Basic plan allows only **15 requests per month**, enough to
+try the integration for a few days; a normal install needs the **Pro** plan (10,000 requests per month).
 
 | When | Calls |
 |---|---|
@@ -139,7 +140,7 @@ The RapidAPI Basic plan allows **150 requests per month**, and this integration 
 | The current price, every 15 minutes | 0 (computed locally) |
 
 That's about **2 calls a day, ~60–70 a month**. Late publications, retries and errors can push it to ~4 a day
-(**~120–130 a month**), still under 150. Errors back off from 15 minutes up to 2 hours, and a 429 waits at least an
+(**~120–130 a month**), well inside Pro and over Basic. Errors back off from 15 minutes up to 2 hours, and a 429 waits at least an
 hour, doubling up to 6. Every extra tariff entry has its own calls. Keep an eye on the *API calls this month* and
 *RapidAPI requests remaining* sensors.
 
@@ -172,7 +173,8 @@ tri-horário, diário ou semanal.
 
 - **Instalação:** HACS → Repositórios personalizados → `https://github.com/hybridforgelab/ha-luz-indexada`
   (Integração). Depois vá a Definições → Dispositivos e serviços → Adicionar integração → *Luz Indexada*.
-- **Chave:** subscreva a API *Luz Indexada* no RapidAPI (o plano Basic, com 150 pedidos/mês, chega) e cole a
+- **Chave:** subscreva a API *Luz Indexada* no RapidAPI (uma instalação normal precisa do plano Pro; o
+  Basic, com 15 pedidos/mês, serve só para experimentar) e cole a
   `X-RapidAPI-Key`.
 - **Entidades:** preço atual e próximo (€/kWh, com ou sem IVA a 23%), mínimo/máximo/média de hoje, início da janela
   mais barata de N horas, *Barato agora* (abaixo da média de hoje ou dentro da janela mais barata) e *Amanhã
