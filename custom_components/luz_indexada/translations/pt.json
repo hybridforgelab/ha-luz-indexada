@@ -11,7 +11,7 @@
       },
       "rapidapi": {
         "title": "RapidAPI",
-        "description": "Subscreva a Luz Indexada no RapidAPI e cole a sua X-RapidAPI-Key. O plano Basic (150 pedidos/mês) chega: esta integração usa cerca de 2 a 4 pedidos por dia.",
+        "description": "Subscreva a Luz Indexada no RapidAPI e cole a sua X-RapidAPI-Key. Esta integração usa cerca de 2 a 4 pedidos por dia (60 a 130 por mês), por isso precisa do plano Pro; o Basic (15 pedidos/mês) serve só para experimentar.",
         "data": {
           "api_key": "Chave RapidAPI",
           "rapidapi_host": "Host RapidAPI"
