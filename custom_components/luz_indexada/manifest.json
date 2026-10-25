@@ -1,0 +1,12 @@
+{
+  "domain": "luz_indexada",
+  "name": "Luz Indexada",
+  "codeowners": ["@hybridforgelab"],
+  "config_flow": true,
+  "documentation": "https://github.com/hybridforgelab/ha-luz-indexada",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/hybridforgelab/ha-luz-indexada/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
