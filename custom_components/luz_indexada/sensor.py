@@ -47,6 +47,8 @@ def _current_attrs(s: PriceState) -> dict[str, Any]:
         "status": today.status,
         "estimate": today.status == "estimate",
         "status_reason": today.extra.get("status_reason"),
+        "valid_until": today.extra.get("valid_until"),
+        "terms_expired": today.extra.get("terms_expired"),
         "formula": today.formula,
         "period": s.current.period if s.current else None,
         "vat_included": s.include_vat,

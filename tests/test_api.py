@@ -57,13 +57,13 @@ def test_parse_tolerates_extra_fields() -> None:
     """New additive fields are kept or ignored, never break parsing."""
     body = load(f"prices_{TODAY}.json")
     body["new_top_level"] = {"x": 1}
-    body["tariffs"][0].update({"valid_to": "2026-12-02", "source": "ficha", "unexpected": [1]})
+    body["tariffs"][0].update({"valid_until": "2026-12-02", "terms_expired": False, "unexpected": [1]})
     body["tariffs"][0]["prices"][0]["new_component"] = 0.1
     body["tariffs"][0]["prices"].append({"start_utc": None})
     body["version"] = "x"
     body["flags"] = None
     day = parse_prices(body, TARIFF)
-    assert day.extra == {"valid_to": "2026-12-02", "source": "ficha"}
+    assert day.extra == {"valid_until": "2026-12-02", "terms_expired": False}
     assert day.version is None and day.flags == [] and len(day.slots) == 100
 
 
