@@ -1,0 +1,18 @@
+{
+  "entity": {
+    "sensor": {
+      "current_price": { "default": "mdi:flash" },
+      "next_price": { "default": "mdi:flash-outline" },
+      "today_min": { "default": "mdi:arrow-collapse-down" },
+      "today_max": { "default": "mdi:arrow-collapse-up" },
+      "today_avg": { "default": "mdi:approximately-equal" },
+      "cheapest_window_start": { "default": "mdi:clock-start" },
+      "api_calls_month": { "default": "mdi:counter" },
+      "api_quota_remaining": { "default": "mdi:gauge" }
+    },
+    "binary_sensor": {
+      "cheap_now": { "default": "mdi:cash-remove", "state": { "on": "mdi:cash-check" } },
+      "tomorrow_available": { "default": "mdi:calendar-question", "state": { "on": "mdi:calendar-check" } }
+    }
+  }
+}

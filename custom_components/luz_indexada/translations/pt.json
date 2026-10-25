@@ -1,0 +1,127 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Luz Indexada",
+        "description": "Preço final real da eletricidade a cada 15 minutos para tarifários indexados em Portugal. Como pretende aceder à API?",
+        "menu_options": {
+          "rapidapi": "Chave RapidAPI (recomendado)",
+          "direct": "API direta (URL base + chave bearer)"
+        }
+      },
+      "rapidapi": {
+        "title": "RapidAPI",
+        "description": "Subscreva a Luz Indexada no RapidAPI e cole a sua X-RapidAPI-Key. O plano Basic (150 pedidos/mês) chega: esta integração usa cerca de 2 a 4 pedidos por dia.",
+        "data": {
+          "api_key": "Chave RapidAPI",
+          "rapidapi_host": "Host RapidAPI"
+        },
+        "data_description": {
+          "rapidapi_host": "Só altere se o host da listagem mudar."
+        }
+      },
+      "direct": {
+        "title": "API direta",
+        "description": "Para instalações próprias ou de teste.",
+        "data": {
+          "base_url": "URL base",
+          "api_key": "Chave bearer"
+        }
+      },
+      "tariff": {
+        "title": "Tarifário",
+        "description": "Os preços não incluem IVA, a menos que o inclua. Com IVA aplica-se 23% a todas as componentes (numa fatura real, os primeiros 200 kWh por 30 dias até 6,9 kVA pagam 6%). Os tarifários marcados (estimate) usam valores indicativos.",
+        "data": {
+          "tariff": "Tarifário",
+          "cycle": "Ciclo",
+          "include_vat": "Incluir IVA a 23%",
+          "window_hours": "Duração da janela mais barata (horas)"
+        },
+        "data_description": {
+          "window_hours": "Duração do bloco contínuo mais barato, em passos de 0,25 h."
+        }
+      },
+      "reauth_confirm": {
+        "title": "Autenticar novamente",
+        "description": "A chave da API foi rejeitada. Introduza uma chave válida.",
+        "data": {
+          "api_key": "Chave da API"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "A chave da API foi rejeitada.",
+      "cannot_connect": "Não foi possível contactar a API.",
+      "rate_limited": "Demasiados pedidos (ou a quota mensal esgotou). Tente mais tarde.",
+      "unknown": "Resposta inesperada da API.",
+      "invalid_url": "Introduza um URL que comece por https:// ou http://.",
+      "cycle_not_offered": "Este tarifário não tem esse ciclo."
+    },
+    "abort": {
+      "already_configured": "Este tarifário e ciclo já estão configurados.",
+      "reauth_successful": "Autenticação renovada com sucesso."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opções da Luz Indexada",
+        "data": {
+          "include_vat": "Incluir IVA a 23%",
+          "window_hours": "Duração da janela mais barata (horas)",
+          "rapidapi_host": "Host RapidAPI"
+        },
+        "data_description": {
+          "window_hours": "Duração do bloco contínuo mais barato, em passos de 0,25 h."
+        }
+      }
+    }
+  },
+  "selector": {
+    "cycle": {
+      "options": {
+        "simples": "Simples",
+        "bi-diario": "Bi-horário, ciclo diário",
+        "bi-semanal": "Bi-horário, ciclo semanal",
+        "tri-diario": "Tri-horário, ciclo diário",
+        "tri-semanal": "Tri-horário, ciclo semanal"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "current_price": {
+        "name": "Preço atual"
+      },
+      "next_price": {
+        "name": "Próximo preço"
+      },
+      "today_min": {
+        "name": "Preço mínimo hoje"
+      },
+      "today_max": {
+        "name": "Preço máximo hoje"
+      },
+      "today_avg": {
+        "name": "Preço médio hoje"
+      },
+      "cheapest_window_start": {
+        "name": "Início da janela mais barata"
+      },
+      "api_calls_month": {
+        "name": "Pedidos à API este mês"
+      },
+      "api_quota_remaining": {
+        "name": "Pedidos RapidAPI restantes"
+      }
+    },
+    "binary_sensor": {
+      "cheap_now": {
+        "name": "Barato agora"
+      },
+      "tomorrow_available": {
+        "name": "Amanhã disponível"
+      }
+    }
+  }
+}

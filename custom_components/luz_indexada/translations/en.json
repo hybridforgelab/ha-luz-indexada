@@ -1,0 +1,127 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Luz Indexada",
+        "description": "Real 15-minute final electricity price for Portuguese indexed tariffs. How do you reach the API?",
+        "menu_options": {
+          "rapidapi": "RapidAPI key (recommended)",
+          "direct": "Direct API (base URL + bearer key)"
+        }
+      },
+      "rapidapi": {
+        "title": "RapidAPI",
+        "description": "Subscribe to Luz Indexada on RapidAPI and paste your X-RapidAPI-Key. The Basic plan (150 requests/month) is enough: this integration uses about 2-4 requests a day.",
+        "data": {
+          "api_key": "RapidAPI key",
+          "rapidapi_host": "RapidAPI host"
+        },
+        "data_description": {
+          "rapidapi_host": "Only change this if the listing host changes."
+        }
+      },
+      "direct": {
+        "title": "Direct API",
+        "description": "For self-hosted or test deployments.",
+        "data": {
+          "base_url": "Base URL",
+          "api_key": "Bearer key"
+        }
+      },
+      "tariff": {
+        "title": "Tariff",
+        "description": "Prices exclude VAT unless you include it. With VAT, 23% is applied to every component (on a real bill the first 200 kWh per 30 days at ≤ 6.9 kVA pay 6%). Tariffs marked (estimate) use indicative values.",
+        "data": {
+          "tariff": "Tariff",
+          "cycle": "Cycle",
+          "include_vat": "Include 23% VAT",
+          "window_hours": "Cheapest window length (hours)"
+        },
+        "data_description": {
+          "window_hours": "Length of the cheapest contiguous block, in steps of 0.25 h."
+        }
+      },
+      "reauth_confirm": {
+        "title": "Reauthenticate",
+        "description": "The API key was rejected. Enter a valid key.",
+        "data": {
+          "api_key": "API key"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "The API key was rejected.",
+      "cannot_connect": "Could not reach the API.",
+      "rate_limited": "Too many requests (or the monthly quota is used up). Try again later.",
+      "unknown": "Unexpected response from the API.",
+      "invalid_url": "Enter a URL starting with https:// or http://.",
+      "cycle_not_offered": "This tariff does not offer that cycle."
+    },
+    "abort": {
+      "already_configured": "This tariff and cycle are already configured.",
+      "reauth_successful": "Reauthentication was successful."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Luz Indexada options",
+        "data": {
+          "include_vat": "Include 23% VAT",
+          "window_hours": "Cheapest window length (hours)",
+          "rapidapi_host": "RapidAPI host"
+        },
+        "data_description": {
+          "window_hours": "Length of the cheapest contiguous block, in steps of 0.25 h."
+        }
+      }
+    }
+  },
+  "selector": {
+    "cycle": {
+      "options": {
+        "simples": "Simple",
+        "bi-diario": "Two-rate, daily",
+        "bi-semanal": "Two-rate, weekly",
+        "tri-diario": "Three-rate, daily",
+        "tri-semanal": "Three-rate, weekly"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "current_price": {
+        "name": "Current price"
+      },
+      "next_price": {
+        "name": "Next price"
+      },
+      "today_min": {
+        "name": "Today minimum price"
+      },
+      "today_max": {
+        "name": "Today maximum price"
+      },
+      "today_avg": {
+        "name": "Today average price"
+      },
+      "cheapest_window_start": {
+        "name": "Cheapest window start"
+      },
+      "api_calls_month": {
+        "name": "API calls this month"
+      },
+      "api_quota_remaining": {
+        "name": "RapidAPI requests remaining"
+      }
+    },
+    "binary_sensor": {
+      "cheap_now": {
+        "name": "Cheap now"
+      },
+      "tomorrow_available": {
+        "name": "Tomorrow available"
+      }
+    }
+  }
+}
