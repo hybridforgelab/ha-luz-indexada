@@ -25,24 +25,33 @@ from homeassistant.util import dt as dt_util
 import voluptuous as vol
 
 from . import build_client
-from .api import LuzAuthError, LuzConnectionError, LuzError, LuzRateLimitError
+from .api import LuzAuthError, LuzConnectionError, LuzError, LuzRateLimitError, is_retired
 from .const import (
     CONF_BASE_URL,
+    CONF_COMPARE,
     CONF_CYCLE,
     CONF_INCLUDE_VAT,
+    CONF_KVA,
     CONF_MODE,
+    CONF_MONTHLY_KWH,
     CONF_RAPIDAPI_HOST,
     CONF_TARIFF,
     CONF_TARIFF_NAME,
     CONF_WINDOW_HOURS,
     CYCLES,
+    DEFAULT_COMPARE,
     DEFAULT_CYCLE,
     DEFAULT_INCLUDE_VAT,
+    DEFAULT_KVA,
+    DEFAULT_MONTHLY_KWH,
     DEFAULT_RAPIDAPI_HOST,
     DEFAULT_WINDOW_HOURS,
     DOMAIN,
+    KVA_STEPS,
     LOGGER,
+    MAX_MONTHLY_KWH,
     MAX_WINDOW_HOURS,
+    MIN_MONTHLY_KWH,
     MIN_WINDOW_HOURS,
     MODE_DIRECT,
     MODE_RAPIDAPI,
@@ -53,12 +62,22 @@ URL = TextSelector(TextSelectorConfig(type=TextSelectorType.URL))
 WINDOW = NumberSelector(
     NumberSelectorConfig(min=MIN_WINDOW_HOURS, max=MAX_WINDOW_HOURS, step=0.25, mode=NumberSelectorMode.BOX)
 )
+KWH = NumberSelector(
+    NumberSelectorConfig(
+        min=MIN_MONTHLY_KWH, max=MAX_MONTHLY_KWH, step=1, mode=NumberSelectorMode.BOX, unit_of_measurement="kWh"
+    )
+)
+KVA = SelectSelector(
+    SelectSelectorConfig(
+        options=[SelectOptionDict(value=k, label=f"{k} kVA") for k in KVA_STEPS], mode=SelectSelectorMode.DROPDOWN
+    )
+)
 
 
 def _selectable(tariffs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Tariffs worth offering: drop the ones withdrawn and replaced (e.g. Coopérnico Base 2.0 → ÚNICO)."""
     today = dt_util.now().date().isoformat()
-    live = [t for t in tariffs if not (t.get("replaced_by") and (t.get("valid_until") or "9999") < today)]
+    live = [t for t in tariffs if not is_retired(t, today)]
     return live or tariffs
 
 
@@ -66,6 +85,24 @@ def _options_schema(defaults: Mapping[str, Any]) -> dict[vol.Marker, Any]:
     return {
         vol.Required(CONF_INCLUDE_VAT, default=defaults.get(CONF_INCLUDE_VAT, DEFAULT_INCLUDE_VAT)): BooleanSelector(),
         vol.Required(CONF_WINDOW_HOURS, default=defaults.get(CONF_WINDOW_HOURS, DEFAULT_WINDOW_HOURS)): WINDOW,
+        vol.Required(CONF_COMPARE, default=defaults.get(CONF_COMPARE, DEFAULT_COMPARE)): BooleanSelector(),
+        vol.Required(CONF_MONTHLY_KWH, default=defaults.get(CONF_MONTHLY_KWH, DEFAULT_MONTHLY_KWH)): KWH,
+        vol.Required(CONF_KVA, default=_kva(defaults.get(CONF_KVA))): KVA,
+    }
+
+
+def _kva(value: Any) -> str:
+    return str(value) if str(value) in KVA_STEPS else DEFAULT_KVA
+
+
+def _options(user_input: dict[str, Any]) -> dict[str, Any]:
+    """Display and comparison options, normalised."""
+    return {
+        CONF_INCLUDE_VAT: user_input[CONF_INCLUDE_VAT],
+        CONF_WINDOW_HOURS: float(user_input[CONF_WINDOW_HOURS]),
+        CONF_COMPARE: user_input[CONF_COMPARE],
+        CONF_MONTHLY_KWH: float(user_input[CONF_MONTHLY_KWH]),
+        CONF_KVA: _kva(user_input[CONF_KVA]),
     }
 
 
@@ -159,10 +196,7 @@ class LuzConfigFlow(ConfigFlow, domain=DOMAIN):
                 return self.async_create_entry(
                     title=f"{name} ({cycle})",
                     data={**self._data, CONF_TARIFF: tariff["id"], CONF_TARIFF_NAME: name, CONF_CYCLE: cycle},
-                    options={
-                        CONF_INCLUDE_VAT: user_input[CONF_INCLUDE_VAT],
-                        CONF_WINDOW_HOURS: float(user_input[CONF_WINDOW_HOURS]),
-                    },
+                    options=_options(user_input),
                 )
         offered = _selectable(self._tariffs)
         tariff_options = [
@@ -205,16 +239,13 @@ class LuzConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 class LuzOptionsFlow(OptionsFlow):
-    """VAT and cheapest-window length (and the RapidAPI host, advanced)."""
+    """VAT, cheapest-window length, supplier comparison (and the RapidAPI host, advanced)."""
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Edit options."""
         entry = self.config_entry
         if user_input is not None:
-            options = {
-                CONF_INCLUDE_VAT: user_input[CONF_INCLUDE_VAT],
-                CONF_WINDOW_HOURS: float(user_input[CONF_WINDOW_HOURS]),
-            }
+            options = _options(user_input)
             if host := (user_input.get(CONF_RAPIDAPI_HOST) or "").strip():
                 options[CONF_RAPIDAPI_HOST] = host
             return self.async_create_entry(data=options)

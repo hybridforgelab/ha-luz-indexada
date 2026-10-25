@@ -5,7 +5,8 @@ Direct mode (self-hosted / testing):
 RapidAPI mode:
     LUZ_RAPIDAPI_KEY=... python scripts/verify_live.py [--host <slug>.p.rapidapi.com]
 
-Makes 1-2 requests (today, plus tomorrow after 13:00 Lisbon). Never prints the key.
+Makes 1-2 requests (today, plus tomorrow after 13:00 Lisbon), plus 2 for the supplier comparison
+(/v1/tariffs and /v1/compare; skip with --no-compare). Never prints the key.
 """
 
 from __future__ import annotations
@@ -21,9 +22,13 @@ import aiohttp
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from custom_components.luz_indexada.api import LuzApiClient, LuzNotPublishedError
+from custom_components.luz_indexada.api import DayPrices, LuzApiClient, LuzNotPublishedError
+from custom_components.luz_indexada.compare import Comparison, build_comparison
 from custom_components.luz_indexada.const import (
+    DEFAULT_KVA,
+    DEFAULT_MONTHLY_KWH,
     DEFAULT_RAPIDAPI_HOST,
+    KVA_STEPS,
     LISBON,
     MODE_DIRECT,
     MODE_RAPIDAPI,
@@ -47,6 +52,9 @@ async def main() -> int:
     ap.add_argument("--hours", type=float, default=2.0)
     ap.add_argument("--no-vat", action="store_true")
     ap.add_argument("--host", default=DEFAULT_RAPIDAPI_HOST)
+    ap.add_argument("--no-compare", action="store_true", help="only the selected tariff (fewer requests)")
+    ap.add_argument("--kwh", type=float, default=DEFAULT_MONTHLY_KWH, help="monthly consumption for /v1/compare")
+    ap.add_argument("--kva", default=DEFAULT_KVA, choices=KVA_STEPS)
     args = ap.parse_args()
 
     calls = 0
@@ -69,13 +77,36 @@ async def main() -> int:
 
         now = datetime.now(UTC)
         local = now.astimezone(LISBON)
-        today = await client.prices(local.date(), args.tariff, args.cycle, now=now)
+        compare = not args.no_compare
+        peers_today: dict[str, DayPrices] = {}
+        peers_tomorrow: dict[str, DayPrices] = {}
+        if compare:
+            today, peers_today = await client.prices_all(local.date(), args.tariff, args.cycle, now=now)
+        else:
+            today = await client.prices(local.date(), args.tariff, args.cycle, now=now)
         tomorrow = None
         if local.hour >= PUBLICATION_HOUR:
+            day = local.date() + timedelta(days=1)
             try:
-                tomorrow = await client.prices(local.date() + timedelta(days=1), args.tariff, args.cycle, now=now)
+                if compare:
+                    tomorrow, peers_tomorrow = await client.prices_all(day, args.tariff, args.cycle, now=now)
+                else:
+                    tomorrow = await client.prices(day, args.tariff, args.cycle, now=now)
             except LuzNotPublishedError as err:
                 print(f"tomorrow: not published yet (next publication {_t(err.next_publication)})")
+        comparison = None
+        if compare:
+            catalogue = {t["id"]: t for t in await client.tariffs()}
+            result = await client.compare(args.kwh, args.kva, args.cycle, now=now)
+            comparison = build_comparison(
+                selected=args.tariff,
+                today=local.date(),
+                peers_today=peers_today,
+                peers_tomorrow=peers_tomorrow,
+                compare=result,
+                catalogue=catalogue,
+                include_vat=not args.no_vat,
+            )
 
     s = build_state(today, tomorrow, now, include_vat=not args.no_vat, window_hours=args.hours)
     print(f"mode: {mode}; API calls: {calls}; now: {_t(now)}")
@@ -104,7 +135,33 @@ async def main() -> int:
     print(f"binary_sensor tomorrow_available: {s.tomorrow_available}")
     if client.quota_remaining is not None:
         print(f"sensor api_quota_remaining:    {client.quota_remaining}/{client.quota_limit}")
+    if comparison is not None:
+        _print_comparison(comparison, peers_today)
     return 0
+
+
+def _print_comparison(c: Comparison, peers_today: dict[str, DayPrices]) -> None:
+    left_out = sorted(set(peers_today) - set(c.curves))
+    print(f"\ncomparison: {len(c.curves)} tariffs with curves; left out (withdrawn): {left_out or '-'}")
+    for tariff, curve in c.curves.items():
+        mark = " (estimate)" if curve.status == "estimate" else ""
+        print(
+            f"sensor average_today_{tariff}: {_p(curve.today_avg)}{mark} "
+            f"[{len(curve.today.slots) if curve.today else 0} today / "
+            f"{len(curve.tomorrow.slots) if curve.tomorrow else 0} tomorrow slots]"
+        )
+    s = c.summary()
+    print(f"compare: {s['monthly_kwh']:g} kWh/month, {s['kva']} kVA, month {s['month']}, VAT {s['vat_included']}")
+    for row in s["tariffs"]:
+        mark = " (estimate)" if row["estimate"] else ""
+        sel = " <- selected" if row["selected"] else ""
+        saving = f"{row['saving']:+.2f}" if row["saving"] is not None else "-"
+        print(f"sensor monthly_cost_{row['tariff']}: {row['cost']:.2f} EUR{mark}, saving vs selected {saving}{sel}")
+    cheapest = c.cheapest
+    print(
+        f"sensor cheapest_supplier: {cheapest.name if cheapest else '-'} "
+        f"(saving {s['saving']} EUR/month; cheapest exact: {s['cheapest_exact']})"
+    )
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@
       },
       "rapidapi": {
         "title": "RapidAPI",
-        "description": "Subscreva a Luz Indexada no RapidAPI e cole a sua X-RapidAPI-Key. Esta integração usa cerca de 2 a 4 pedidos por dia (60 a 130 por mês), por isso precisa do plano Pro; o Basic (15 pedidos/mês) serve só para experimentar.",
+        "description": "Subscreva a Luz Indexada no RapidAPI e cole a sua X-RapidAPI-Key. Esta integração usa cerca de 3 a 5 pedidos por dia com a comparação de fornecedores (90 a 160 por mês; 2 a 4 sem ela), por isso precisa do plano Pro; o Basic (15 pedidos/mês) serve só para experimentar.",
         "data": {
           "api_key": "Chave RapidAPI",
           "rapidapi_host": "Host RapidAPI"
@@ -35,10 +35,16 @@
           "tariff": "Tarifário",
           "cycle": "Ciclo",
           "include_vat": "Incluir IVA a 23%",
-          "window_hours": "Duração da janela mais barata (horas)"
+          "window_hours": "Duração da janela mais barata (horas)",
+          "compare": "Comparar fornecedores",
+          "monthly_kwh": "Consumo mensal (kWh)",
+          "kva": "Potência contratada (kVA)"
         },
         "data_description": {
-          "window_hours": "Duração do bloco contínuo mais barato, em passos de 0,25 h."
+          "window_hours": "Duração do bloco contínuo mais barato, em passos de 0,25 h.",
+          "compare": "Acrescenta o preço médio de hoje de todos os outros tarifários (dos mesmos pedidos) e um custo mensal estimado por fornecedor (cerca de 1 pedido extra por dia).",
+          "monthly_kwh": "Usado só na comparação do custo mensal (perfil de consumo normalizado da ERSE).",
+          "kva": "Usada só na comparação do custo mensal (termo de potência)."
         }
       },
       "reauth_confirm": {
@@ -69,10 +75,16 @@
         "data": {
           "include_vat": "Incluir IVA a 23%",
           "window_hours": "Duração da janela mais barata (horas)",
-          "rapidapi_host": "Host RapidAPI"
+          "rapidapi_host": "Host RapidAPI",
+          "compare": "Comparar fornecedores",
+          "monthly_kwh": "Consumo mensal (kWh)",
+          "kva": "Potência contratada (kVA)"
         },
         "data_description": {
-          "window_hours": "Duração do bloco contínuo mais barato, em passos de 0,25 h."
+          "window_hours": "Duração do bloco contínuo mais barato, em passos de 0,25 h.",
+          "compare": "Acrescenta o preço médio de hoje de todos os outros tarifários (dos mesmos pedidos) e um custo mensal estimado por fornecedor (cerca de 1 pedido extra por dia).",
+          "monthly_kwh": "Usado só na comparação do custo mensal (perfil de consumo normalizado da ERSE).",
+          "kva": "Usada só na comparação do custo mensal (termo de potência)."
         }
       }
     }
@@ -113,6 +125,15 @@
       },
       "api_quota_remaining": {
         "name": "Pedidos RapidAPI restantes"
+      },
+      "tariff_average_today": {
+        "name": "Preço médio hoje — {tariff}"
+      },
+      "tariff_monthly_cost": {
+        "name": "Custo mensal estimado — {tariff}"
+      },
+      "cheapest_supplier": {
+        "name": "Fornecedor mais barato"
       }
     },
     "binary_sensor": {

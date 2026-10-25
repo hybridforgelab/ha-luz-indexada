@@ -154,26 +154,20 @@ class DayPrices:
 
 
 # Fields of a /v1/prices tariff entry kept as-is (additive API fields are tolerated and ignored otherwise).
-_EXTRA_FIELDS = ("status_reason", "valid_from", "valid_to", "valid_until", "terms_expired", "source", "source_url")
+_EXTRA_FIELDS = (
+    "status_reason",
+    "replaced_by",
+    "valid_from",
+    "valid_to",
+    "valid_until",
+    "terms_expired",
+    "source",
+    "source_url",
+)
 
 
-def parse_prices(body: dict[str, Any], tariff: str, fetched_at: datetime | None = None) -> DayPrices:
-    """Turn a /v1/prices response into DayPrices for one tariff."""
-    try:
-        day = date.fromisoformat(body["date"])
-    except (KeyError, TypeError, ValueError) as err:
-        raise LuzApiError("response has no valid 'date'") from err
-    entries = body.get("tariffs")
-    entry = (
-        next(
-            (t for t in entries if isinstance(t, dict) and t.get("tariff") == tariff),
-            None,
-        )
-        if isinstance(entries, list)
-        else None
-    )
-    if entry is None:
-        raise LuzApiError(f"tariff {tariff!r} missing from the response")
+def _parse_entry(body: dict[str, Any], day: date, entry: dict[str, Any], fetched_at: datetime | None) -> DayPrices:
+    """One tariff entry of a /v1/prices response."""
     if entry.get("available") is False:
         raise LuzApiError(f"cycle not available: {entry.get('reason') or 'unknown reason'}")
     slots: list[Slot] = []
@@ -202,6 +196,158 @@ def parse_prices(body: dict[str, Any], tariff: str, fetched_at: datetime | None 
         fetched_at=fetched_at,
         extra={k: entry[k] for k in _EXTRA_FIELDS if k in entry},
     )
+
+
+def _day_and_entries(body: dict[str, Any]) -> tuple[date, list[dict[str, Any]]]:
+    try:
+        day = date.fromisoformat(body["date"])
+    except (KeyError, TypeError, ValueError) as err:
+        raise LuzApiError("response has no valid 'date'") from err
+    entries = body.get("tariffs")
+    if not isinstance(entries, list):
+        return day, []
+    return day, [t for t in entries if isinstance(t, dict) and isinstance(t.get("tariff"), str)]
+
+
+def parse_prices(body: dict[str, Any], tariff: str, fetched_at: datetime | None = None) -> DayPrices:
+    """Turn a /v1/prices response into DayPrices for one tariff."""
+    day, entries = _day_and_entries(body)
+    entry = next((t for t in entries if t["tariff"] == tariff), None)
+    if entry is None:
+        raise LuzApiError(f"tariff {tariff!r} missing from the response")
+    return _parse_entry(body, day, entry, fetched_at)
+
+
+def parse_all_prices(body: dict[str, Any], fetched_at: datetime | None = None) -> dict[str, DayPrices]:
+    """Every usable tariff of a /v1/prices response (unavailable or empty entries are skipped)."""
+    day, entries = _day_and_entries(body)
+    result: dict[str, DayPrices] = {}
+    for entry in entries:
+        try:
+            result[entry["tariff"]] = _parse_entry(body, day, entry, fetched_at)
+        except LuzApiError:
+            continue
+    return result
+
+
+def is_retired(tariff: dict[str, Any], today: str) -> bool:
+    """Withdrawn and replaced by another tariff (e.g. Coopérnico Base 2.0 → ÚNICO); `today` is an ISO date."""
+    return bool(tariff.get("replaced_by")) and (tariff.get("valid_until") or "9999") < today
+
+
+@dataclass(frozen=True, slots=True)
+class TariffCost:
+    """Monthly cost of one tariff for the standard ERSE profile (from /v1/compare)."""
+
+    tariff: str
+    name: str
+    status: str | None
+    total: float
+    total_excl_vat: float
+    vat: float | None
+    kwh: float | None
+    avg_energy_price: float | None
+    days_priced: int | None
+    days_in_month: int | None
+    coverage: float | None
+    flags: list[str]
+
+    def value(self, include_vat: bool) -> float:
+        """Monthly cost with the real VAT split, or without VAT."""
+        return self.total if include_vat else self.total_excl_vat
+
+    def as_dict(self) -> dict[str, Any]:
+        """Serialise for the cache store."""
+        return {
+            "tariff": self.tariff,
+            "name": self.name,
+            "status": self.status,
+            "total_eur": self.total,
+            "total_excl_vat_eur": self.total_excl_vat,
+            "vat_eur": self.vat,
+            "kwh": self.kwh,
+            "avg_energy_price_eur_kwh": self.avg_energy_price,
+            "days_priced": self.days_priced,
+            "days_in_month": self.days_in_month,
+            "coverage": self.coverage,
+            "flags": list(self.flags),
+        }
+
+
+def _int(value: Any) -> int | None:
+    return value if isinstance(value, int) and not isinstance(value, bool) else None
+
+
+def _parse_cost(raw: Any) -> TariffCost | None:
+    if not isinstance(raw, dict) or raw.get("available") is False or not isinstance(raw.get("tariff"), str):
+        return None
+    total, excl = _num(raw.get("total_eur")), _num(raw.get("total_excl_vat_eur"))
+    if total is None or excl is None:
+        return None
+    flags = raw.get("flags")
+    return TariffCost(
+        tariff=raw["tariff"],
+        name=str(raw.get("name") or raw["tariff"]),
+        status=raw.get("status"),
+        total=total,
+        total_excl_vat=excl,
+        vat=_num(raw.get("vat_eur")),
+        kwh=_num(raw.get("kwh")),
+        avg_energy_price=_num(raw.get("avg_energy_price_eur_kwh")),
+        days_priced=_int(raw.get("days_priced")),
+        days_in_month=_int(raw.get("days_in_month")),
+        coverage=_num(raw.get("coverage")),
+        flags=[str(f) for f in flags] if isinstance(flags, list) else [],
+    )
+
+
+@dataclass(slots=True)
+class CompareResult:
+    """A /v1/compare response: monthly cost per available tariff."""
+
+    month: str | None
+    cycle: str | None
+    kva: float | None
+    kwh: float
+    costs: dict[str, TariffCost]
+    notes: list[str] = field(default_factory=list)
+    fetched_at: datetime | None = None
+    fetched_day: str | None = None
+
+    def as_dict(self) -> dict[str, Any]:
+        """Serialise for the cache store (same shape as the API, so from_dict can reuse the parser)."""
+        return {
+            "month": self.month,
+            "cycle": self.cycle,
+            "kva": self.kva,
+            "kwh": self.kwh,
+            "notes": list(self.notes),
+            "results": [c.as_dict() for c in self.costs.values()],
+            "fetched_at": self.fetched_at.isoformat() if self.fetched_at else None,
+            "fetched_day": self.fetched_day,
+        }
+
+    @classmethod
+    def from_dict(cls, raw: dict[str, Any], kwh: float | None = None) -> CompareResult:
+        """Parse a /v1/compare body (or the cached form)."""
+        results = raw.get("results")
+        if not isinstance(results, list):
+            raise LuzApiError("compare response has no 'results'")
+        costs = {c.tariff: c for c in map(_parse_cost, results) if c is not None}
+        notes = raw.get("notes")
+        cached_kwh = _num(raw.get("kwh"))
+        if cached_kwh is None:
+            cached_kwh = next((c.kwh for c in costs.values() if c.kwh is not None), kwh or 0.0)
+        return cls(
+            month=raw.get("month") if isinstance(raw.get("month"), str) else None,
+            cycle=raw.get("cycle") if isinstance(raw.get("cycle"), str) else None,
+            kva=_num(raw.get("kva")),
+            kwh=cached_kwh,
+            costs=costs,
+            notes=[str(n) for n in notes] if isinstance(notes, list) else [],
+            fetched_at=parse_utc(raw.get("fetched_at")),
+            fetched_day=raw.get("fetched_day") if isinstance(raw.get("fetched_day"), str) else None,
+        )
 
 
 def _retry_after(value: str | None) -> float | None:
@@ -288,3 +434,17 @@ class LuzApiClient:
         """Prices for one Lisbon day."""
         body = await self._get("/v1/prices", {"date": day.isoformat(), "tariff": tariff, "cycle": cycle})
         return parse_prices(body, tariff, fetched_at=now)
+
+    async def prices_all(
+        self, day: date, tariff: str, cycle: str, now: datetime | None = None
+    ) -> tuple[DayPrices, dict[str, DayPrices]]:
+        """Prices of every tariff for one Lisbon day, in one call: (the selected tariff, all usable tariffs)."""
+        body = await self._get("/v1/prices", {"date": day.isoformat(), "cycle": cycle})
+        return parse_prices(body, tariff, fetched_at=now), parse_all_prices(body, fetched_at=now)
+
+    async def compare(self, monthly_kwh: float, kva: str, cycle: str, now: datetime | None = None) -> CompareResult:
+        """Monthly cost of a standard ERSE profile on every tariff (current month)."""
+        body = await self._get("/v1/compare", {"monthly_kwh": f"{monthly_kwh:g}", "kva": kva, "cycle": cycle})
+        result = CompareResult.from_dict(body, kwh=monthly_kwh)
+        result.fetched_at = now
+        return result

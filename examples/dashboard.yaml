@@ -1,0 +1,250 @@
+# Luz Indexada: example dashboard (one Lovelace view, "sections" layout).
+#
+# Requirements
+#   * apexcharts-card (HACS → Frontend → "apexcharts-card"). HACS registers the Lovelace resource
+#     for you; on a manual install add /local/apexcharts-card.js as a JavaScript module under
+#     Settings → Dashboards → ⋮ → Resources. Without it the three charts show "Custom element doesn't exist".
+#   * "Compare suppliers" turned on (the default) for the comparison section.
+#
+# How to use
+#   Settings → Dashboards → open a dashboard → ⋮ → Edit dashboard → ⋮ → Raw configuration editor,
+#   and paste this file as one entry under `views:` (indent it by two spaces), or create a new
+#   dashboard and paste it as its only view.
+#
+# Entity ids
+#   They match a default install of Galp Plano Flexível, simple cycle:
+#     sensor.luz_indexada_galp_plano_flexivel_simples_…
+#   For another tariff/cycle, find your prefix under Settings → Devices & services → Luz Indexada →
+#   (device) → Entities, then search and replace "galp_plano_flexivel_simples" in this file
+#   (e.g. "repsol_leve_sem_mais_bi_diario"). The per-supplier sensors end with the supplier's name
+#   (…_average_price_today_repsol_leve_sem_mais, …_estimated_monthly_cost_g9_smart_dynamic), the same
+#   on every install; add or remove series if the API's tariff list changes.
+#   Series colours are fixed per supplier so a supplier keeps its colour in every chart.
+title: Luz Indexada
+path: luz-indexada
+icon: mdi:flash
+type: sections
+max_columns: 3
+sections:
+  - type: grid
+    cards:
+      - type: heading
+        heading: Price now
+        heading_style: title
+      - type: tile
+        entity: sensor.luz_indexada_galp_plano_flexivel_simples_current_price
+        name: Now
+      - type: tile
+        entity: sensor.luz_indexada_galp_plano_flexivel_simples_next_price
+        name: Next 15 min
+      - type: tile
+        entity: sensor.luz_indexada_galp_plano_flexivel_simples_today_average_price
+        name: Today average
+      - type: tile
+        entity: binary_sensor.luz_indexada_galp_plano_flexivel_simples_cheap_now
+        name: Cheap now
+      - type: tile
+        entity: sensor.luz_indexada_galp_plano_flexivel_simples_today_minimum_price
+        name: Today minimum
+      - type: tile
+        entity: sensor.luz_indexada_galp_plano_flexivel_simples_today_maximum_price
+        name: Today maximum
+      - type: tile
+        entity: sensor.luz_indexada_galp_plano_flexivel_simples_cheapest_window_start
+        name: Cheapest window
+      - type: tile
+        entity: binary_sensor.luz_indexada_galp_plano_flexivel_simples_tomorrow_available
+        name: Tomorrow published
+
+  - type: grid
+    column_span: 2
+    cards:
+      - type: heading
+        heading: Your tariff, today and tomorrow
+        heading_style: title
+      - type: custom:apexcharts-card
+        grid_options:
+          columns: full
+        header:
+          show: true
+          title: €/kWh every 15 minutes
+          show_states: true
+        graph_span: 2d
+        span:
+          start: day
+        now:
+          show: true
+          label: now
+        yaxis:
+          - min: 0
+            decimals: 2
+        series:
+          - entity: sensor.luz_indexada_galp_plano_flexivel_simples_current_price
+            name: Price
+            type: column
+            color: "#2a78d6"
+            float_precision: 4
+            show:
+              in_header: raw
+            data_generator: |
+              return [...entity.attributes.raw_today, ...entity.attributes.raw_tomorrow]
+                .filter((s) => s.value !== null)
+                .map((s) => [new Date(s.start).getTime(), s.value]);
+
+  - type: grid
+    column_span: 3
+    cards:
+      - type: heading
+        heading: Compare suppliers
+        heading_style: title
+      - type: tile
+        entity: sensor.luz_indexada_galp_plano_flexivel_simples_cheapest_supplier
+        name: Cheapest supplier for your consumption
+        grid_options:
+          columns: full
+      - type: custom:apexcharts-card
+        grid_options:
+          columns: full
+        header:
+          show: true
+          title: Every supplier, €/kWh every 15 minutes (today and tomorrow)
+        graph_span: 2d
+        span:
+          start: day
+        now:
+          show: true
+          label: now
+        yaxis:
+          - min: 0
+            decimals: 2
+        apex_config:
+          legend:
+            show: true
+          tooltip:
+            shared: true
+        series:
+          - entity: sensor.luz_indexada_galp_plano_flexivel_simples_average_price_today_galp_plano_flexivel
+            name: Galp
+            color: "#2a78d6"
+            curve: stepline
+            stroke_width: 2
+            float_precision: 4
+            data_generator: &curve |
+              return [...entity.attributes.raw_today, ...entity.attributes.raw_tomorrow]
+                .filter((s) => s.value !== null)
+                .map((s) => [new Date(s.start).getTime(), s.value]);
+          - entity: sensor.luz_indexada_galp_plano_flexivel_simples_average_price_today_repsol_leve_sem_mais
+            name: Repsol
+            color: "#eb6834"
+            curve: stepline
+            stroke_width: 2
+            float_precision: 4
+            data_generator: *curve
+          - entity: sensor.luz_indexada_galp_plano_flexivel_simples_average_price_today_g9_smart_dynamic
+            name: G9 (estimate)
+            color: "#1baf7a"
+            curve: stepline
+            stroke_width: 2
+            float_precision: 4
+            data_generator: *curve
+          - entity: sensor.luz_indexada_galp_plano_flexivel_simples_average_price_today_endesa_tarifa_dinamica
+            name: Endesa (estimate)
+            color: "#eda100"
+            curve: stepline
+            stroke_width: 2
+            float_precision: 4
+            data_generator: *curve
+      - type: custom:apexcharts-card
+        grid_options:
+          columns: 6
+        header:
+          show: true
+          title: Estimated monthly cost (€)
+          show_states: true
+        graph_span: 1d
+        span:
+          start: day
+        yaxis:
+          - min: 0
+            decimals: 0
+        apex_config:
+          legend:
+            show: true
+          xaxis:
+            labels:
+              show: false
+          plotOptions:
+            bar:
+              columnWidth: 70%
+              borderRadius: 4
+              borderRadiusApplication: end
+        series:
+          - entity: sensor.luz_indexada_galp_plano_flexivel_simples_estimated_monthly_cost_galp_plano_flexivel
+            name: Galp
+            type: column
+            color: "#2a78d6"
+            float_precision: 2
+            show: &cost_show
+              datalabels: true
+              in_header: true
+            data_generator: &cost |
+              return [[moment().startOf("day").add(12, "hours").valueOf(), Number(entity.state)]];
+          - entity: sensor.luz_indexada_galp_plano_flexivel_simples_estimated_monthly_cost_repsol_leve_sem_mais
+            name: Repsol
+            type: column
+            color: "#eb6834"
+            float_precision: 2
+            show: *cost_show
+            data_generator: *cost
+          - entity: sensor.luz_indexada_galp_plano_flexivel_simples_estimated_monthly_cost_g9_smart_dynamic
+            name: G9 (estimate)
+            type: column
+            color: "#1baf7a"
+            float_precision: 2
+            show: *cost_show
+            data_generator: *cost
+          - entity: sensor.luz_indexada_galp_plano_flexivel_simples_estimated_monthly_cost_endesa_tarifa_dinamica
+            name: Endesa (estimate)
+            type: column
+            color: "#eda100"
+            float_precision: 2
+            show: *cost_show
+            data_generator: *cost
+      - type: markdown
+        grid_options:
+          columns: 6
+        title: Monthly cost per supplier
+        content: |
+          {%- set e = 'sensor.luz_indexada_galp_plano_flexivel_simples_cheapest_supplier' -%}
+          {%- set rows = state_attr(e, 'tariffs') or [] -%}
+          {%- if rows %}
+          | Supplier | €/month | Saving vs yours |
+          |:--|--:|--:|
+          {%- for t in rows %}
+          | {{ ('**' ~ t.name ~ '** (cheapest)') if loop.first else t.name }}{{ ' *estimate*' if t.estimate }}{{ ' · *yours*' if t.selected }} | {{ '%.2f' | format(t.cost) }} | {{ ('%+.2f' | format(t.saving)) if t.saving is not none else '–' }} |
+          {%- endfor %}
+
+          {{ state_attr(e, 'monthly_kwh') | int }} kWh/month at {{ state_attr(e, 'kva') }} kVA, {{ state_attr(e, 'month') }},
+          {{ 'VAT included' if state_attr(e, 'vat_included') else 'VAT excluded' }}. A positive saving means switching would cost less.
+          {%- else %}
+          The comparison isn't available yet (it is refreshed once a day). Check that *Compare suppliers* is on.
+          {%- endif %}
+      - type: markdown
+        grid_options:
+          columns: full
+        title: How to read this
+        content: |
+          **Exact** tariffs use the supplier's published formula and terms. **Estimate** tariffs use indicative
+          values where the supplier's ficha doesn't give them all, so their prices can be off; treat them as a guide.
+
+          The 15-minute curves are the final price per kWh (OMIE + losses + supplier terms + network tariff + IEC).
+          Each supplier's *Average price today* sensor holds its full curve for today and tomorrow.
+
+          The **monthly cost** is computed by the API for a standard ERSE consumption profile at the consumption
+          and contracted power set in the integration's options (*Configure*), for the current month, with the real
+          VAT split (6% on the first 200 kWh per 30 days at ≤ 6.9 kVA, 23% on the rest). Days not yet priced are
+          projected. It includes power, IEC, the audiovisual contribution and the DGEG fee, but not discounts,
+          loyalty terms or self-consumption.
+
+          All values are informative and are not an offer or a bill. Check the supplier's current terms before
+          switching. Prices: OMIE. Network tariffs: ERSE. Losses: E-REDES.
