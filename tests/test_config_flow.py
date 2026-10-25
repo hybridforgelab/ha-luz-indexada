@@ -85,7 +85,7 @@ async def test_rapidapi_flow_advanced_host(hass: HomeAssistant, aioclient_mock: 
     )
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
-        {CONF_TARIFF: "coopernico-base-2", CONF_CYCLE: "simples", CONF_INCLUDE_VAT: True, CONF_WINDOW_HOURS: 2},
+        {CONF_TARIFF: "g9-smart-dynamic", CONF_CYCLE: "simples", CONF_INCLUDE_VAT: True, CONF_WINDOW_HOURS: 2},
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["data"][CONF_RAPIDAPI_HOST] == "other.p.rapidapi.com"
@@ -176,3 +176,22 @@ async def test_options_rapidapi_host(hass: HomeAssistant, entry_data: dict[str, 
         result["flow_id"], {CONF_INCLUDE_VAT: True, CONF_WINDOW_HOURS: 2, CONF_RAPIDAPI_HOST: " new.p.rapidapi.com "}
     )
     assert entry.options[CONF_RAPIDAPI_HOST] == "new.p.rapidapi.com"
+
+
+async def test_tariff_form_hides_discontinued(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
+    """A tariff withdrawn and replaced isn't offered, and the default is the first exact tariff."""
+    aioclient_mock.get(f"{BASE}/v1/tariffs", json=load("tariffs.json"))
+    result = await _start(hass, MODE_DIRECT)
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {CONF_BASE_URL: BASE, "api_key": "k"})
+    field = next(k for k in result["data_schema"].schema if k == CONF_TARIFF)
+    values = [o["value"] for o in result["data_schema"].schema[field].config["options"]]
+    assert "coopernico-base-2" not in values and "galp-plano-flexivel" in values
+    assert field.default() == "repsol-leve-sem-mais"
+
+
+def test_selectable_keeps_all_when_everything_is_withdrawn() -> None:
+    """Never offer an empty list."""
+    from custom_components.luz_indexada.config_flow import _selectable
+
+    old = [{"id": "a", "replaced_by": "b", "valid_until": "2000-01-01"}]
+    assert _selectable(old) == old

@@ -1,487 +1,489 @@
 {
- "count": 5,
- "tariffs": [
-  {
-   "id": "coopernico-base-2",
-   "name": "Coopérnico Base 2.0",
-   "supplier": "Coopérnico",
-   "formula": "coopernico",
-   "formula_text": "(OMIE + k) × (1 + FP) + (CR + CS) × (1 + FP) + TSE + TAR + IEC",
-   "params": {
-    "k": {
-     "value": 0.009,
-     "unit": "EUR/kWh",
-     "verified": true,
-     "source": "Coopérnico, tarifários Base 2.0 / GO 2.0 (julho 2026), pp. 2, 5-7 p. 5 (margem Coopérnico)"
+  "count": 5,
+  "tariffs": [
+    {
+      "id": "coopernico-base-2",
+      "name": "Coopérnico Base 2.0",
+      "supplier": "Coopérnico",
+      "formula": "coopernico",
+      "formula_text": "(OMIE + k) × (1 + FP) + (CR + CS) × (1 + FP) + TSE + TAR + IEC",
+      "params": {
+        "k": {
+          "value": 0.009,
+          "unit": "EUR/kWh",
+          "verified": true,
+          "source": "Coopérnico, tarifários Base 2.0 / GO 2.0 (julho 2026), pp. 2, 5-7 p. 5 (margem Coopérnico)"
+        },
+        "cr": {
+          "value": 0.01963,
+          "unit": "EUR/kWh",
+          "verified": false,
+          "source": "Coopérnico, tarifários Base 2.0 / GO 2.0 (julho 2026), pp. 2, 5-7 p. 7",
+          "note": "Encargos de Regulação: monthly-variable, 0,01963 is the ficha's indicative value (average of the last 3 months published by REN)"
+        },
+        "cs": {
+          "value": 0.001,
+          "unit": "EUR/kWh",
+          "verified": false,
+          "source": "Coopérnico, tarifários Base 2.0 / GO 2.0 (julho 2026), pp. 2, 5-7 p. 7",
+          "note": "Custos de Sistema: monthly-variable, indicative value"
+        },
+        "tse": {
+          "value": 0.0020666,
+          "unit": "EUR/kWh",
+          "verified": true,
+          "source": "Coopérnico, tarifários Base 2.0 / GO 2.0 (julho 2026), pp. 2, 5-7 p. 7"
+        }
+      },
+      "ficha": {
+        "title": "Coopérnico tarifários (julho 2026)",
+        "date": "2026-07-01",
+        "url": "https://www.coopernico.org",
+        "url_verified": false
+      },
+      "valid_from": "2026-07-01",
+      "status": "estimate",
+      "status_reason": "CR and CS change monthly; the ficha's indicative values are used. The ficha's worked example omits CR/CS/TSE, so whether they are billed per kWh should be confirmed.",
+      "cycles": [
+        "simples",
+        "bi-diario",
+        "bi-semanal",
+        "tri-diario",
+        "tri-semanal"
+      ],
+      "kva": [
+        "1.15",
+        "2.3",
+        "3.45",
+        "4.6",
+        "5.75",
+        "6.9",
+        "10.35",
+        "13.8",
+        "17.25",
+        "20.7"
+      ],
+      "power_eur_day": {
+        "1.15": 0.0787,
+        "2.3": 0.1359,
+        "3.45": 0.1943,
+        "4.6": 0.2522,
+        "5.75": 0.3099,
+        "6.9": 0.368,
+        "10.35": 0.5443,
+        "13.8": 0.7257,
+        "17.25": 0.9008,
+        "20.7": 1.0771
+      },
+      "power_source": "Coopérnico, tarifários Base 2.0 / GO 2.0 (julho 2026), pp. 2, 5-7 p. 2",
+      "cross_check_name": null,
+      "cross_check_note": "tiagofelicia.pt lists 'Coopérnico Único' with a different formula (k without FP, CS from REN's daily ERC), so it is not compared.",
+      "valid_until": "2026-09-30",
+      "replaced_by": "coopernico-unico"
     },
-    "cr": {
-     "value": 0.01963,
-     "unit": "EUR/kWh",
-     "verified": false,
-     "source": "Coopérnico, tarifários Base 2.0 / GO 2.0 (julho 2026), pp. 2, 5-7 p. 7",
-     "note": "Encargos de Regulação: monthly-variable, 0,01963 is the ficha's indicative value (average of the last 3 months published by REN)"
+    {
+      "id": "g9-smart-dynamic",
+      "name": "G9 Smart Dynamic",
+      "supplier": "G9 Energia",
+      "formula": "g9",
+      "formula_text": "max(OMIE, 0) × (1 + Perdas) × K1 + K2 + K3 + TAR + IEC",
+      "params": {
+        "k1": {
+          "value": 1.02,
+          "unit": "factor",
+          "verified": false,
+          "source": "caller brief; same value in tiagofelicia.pt calculator constants (CC BY 4.0), not a supplier document"
+        },
+        "k2": {
+          "value": 0.0185,
+          "unit": "EUR/kWh",
+          "verified": false,
+          "source": "caller brief",
+          "note": "tiagofelicia.pt models K2 as REN's ERC × (1 + Perdas), about 0,0103 €/kWh on 26 Oct 2026, not a constant"
+        },
+        "k3": {
+          "value": 0.008,
+          "unit": "EUR/kWh",
+          "verified": false,
+          "source": "tiagofelicia.pt calculator constants (CC BY 4.0), not a supplier document (G9_K3, 'margem comercial da G9')",
+          "note": "No G9 ficha in the research files; K3 is unconfirmed"
+        }
+      },
+      "ficha": {
+        "title": null,
+        "date": null,
+        "url": "https://g9.pt/energia/",
+        "url_verified": false
+      },
+      "valid_from": "2026-01-01",
+      "status": "estimate",
+      "status_reason": "No G9 ficha was available: K1/K2/K3 come from the brief and a third-party calculator; TSE inclusion unknown (tiagofelicia.pt adds TSE).",
+      "cycles": [
+        "simples",
+        "bi-diario",
+        "bi-semanal",
+        "tri-diario",
+        "tri-semanal"
+      ],
+      "kva": [
+        "1.15",
+        "2.3",
+        "3.45",
+        "4.6",
+        "5.75",
+        "6.9",
+        "10.35",
+        "13.8",
+        "17.25",
+        "20.7"
+      ],
+      "power_eur_day": null,
+      "power_source": null,
+      "cross_check_name": "G9 Smart Dynamic SPOT 8!"
     },
-    "cs": {
-     "value": 0.001,
-     "unit": "EUR/kWh",
-     "verified": false,
-     "source": "Coopérnico, tarifários Base 2.0 / GO 2.0 (julho 2026), pp. 2, 5-7 p. 7",
-     "note": "Custos de Sistema: monthly-variable, indicative value"
+    {
+      "id": "repsol-leve-sem-mais",
+      "name": "Repsol Leve Sem Mais",
+      "supplier": "Repsol",
+      "formula": "repsol",
+      "formula_text": "POMIE × (1 + Perdas) × FA + QTarifa + TSE + TAR + IEC",
+      "params": {
+        "fa": {
+          "value": 1.03,
+          "unit": "factor",
+          "verified": true,
+          "source": "Repsol, Condições particulares Tarifa Leve Sem Mais, versão 20260101, 'Informação complementar - Fórmula indexado Eletricidade'"
+        },
+        "q": {
+          "value": 0.02109,
+          "unit": "EUR/kWh",
+          "verified": true,
+          "source": "Repsol, Condições particulares Tarifa Leve Sem Mais, versão 20260101, 'Informação complementar - Fórmula indexado Eletricidade' (QTarifa)"
+        },
+        "tse": {
+          "value": 0.0020666,
+          "unit": "EUR/kWh",
+          "verified": true,
+          "source": "Repsol, Condições particulares Tarifa Leve Sem Mais, versão 20260101, 'Informação complementar - Fórmula indexado Eletricidade' says the social tariff financing is billed separately; value from Coopérnico, tarifários Base 2.0 / GO 2.0 (julho 2026), pp. 2, 5-7"
+        }
+      },
+      "ficha": {
+        "title": "Condições particulares Tarifa Leve Sem Mais, versão 20260101",
+        "date": "2026-01-01",
+        "url": "https://www.repsol.pt/particulares/casa/eletricidade-gas/planos-eletricidade-e-gas/plano-leve-sem-mais/",
+        "url_verified": false
+      },
+      "valid_from": "2026-01-01",
+      "status": "exact",
+      "warnings": [
+        "The ficha says 'Oferta válida até 31/01/2026'; no newer version was checked."
+      ],
+      "cycles": [
+        "simples",
+        "bi-diario",
+        "bi-semanal",
+        "tri-diario",
+        "tri-semanal"
+      ],
+      "kva": [
+        "1.15",
+        "2.3",
+        "3.45",
+        "4.6",
+        "5.75",
+        "6.9",
+        "10.35",
+        "13.8",
+        "17.25",
+        "20.7"
+      ],
+      "power_eur_day": {
+        "1.15": 0.2823,
+        "2.3": 0.3395,
+        "3.45": 0.3968,
+        "4.6": 0.4041,
+        "5.75": 0.4614,
+        "6.9": 0.5186,
+        "10.35": 0.6904,
+        "13.8": 0.8622,
+        "17.25": 1.0341,
+        "20.7": 1.2059
+      },
+      "power_source": "Repsol, Condições particulares Tarifa Leve Sem Mais, versão 20260101, 'Informação complementar - Fórmula indexado Eletricidade', tabela de preços",
+      "cross_check_name": "Repsol Leve Sem Mais"
+    },
+    {
+      "id": "galp-plano-flexivel",
+      "name": "Galp Plano Flexível",
+      "supplier": "Galp",
+      "formula": "galp",
+      "formula_text": "(PM + Ci) × (1 + L) + TAR + IEC",
+      "params": {
+        "ci": {
+          "value": 0.0191,
+          "unit": "EUR/kWh",
+          "verified": true,
+          "source": "Galp, Tabela de preços e descontos Plano Flexível, em vigor a partir de 1 de janeiro de 2026, 'Tabela de preços'",
+          "note": "Galp may revise Ci in January, April, July and October; later revisions were not checked"
+        }
+      },
+      "ficha": {
+        "title": "Tabela de preços e descontos Galp - Plano Flexível",
+        "date": "2026-01-01",
+        "url": "https://www.galp.com/pt/casa/planos-eletricidade-e-gas/eletricidade-indexada",
+        "url_verified": false
+      },
+      "valid_from": "2026-01-01",
+      "status": "exact",
+      "warnings": [
+        "Ci is revisable quarterly; 0,0191 €/kWh is the value at 1 Jan 2026."
+      ],
+      "cycles": [
+        "simples",
+        "bi-diario",
+        "bi-semanal",
+        "tri-diario",
+        "tri-semanal"
+      ],
+      "kva": [
+        "1.15",
+        "2.3",
+        "3.45",
+        "4.6",
+        "5.75",
+        "6.9",
+        "10.35",
+        "13.8",
+        "17.25",
+        "20.7"
+      ],
+      "power_eur_day": {
+        "1.15": 0.1613,
+        "2.3": 0.2153,
+        "3.45": 0.238,
+        "4.6": 0.3041,
+        "5.75": 0.3728,
+        "6.9": 0.4743,
+        "10.35": 0.6732,
+        "13.8": 0.8833,
+        "17.25": 1.0844,
+        "20.7": 1.2957
+      },
+      "power_source": "Galp, Tabela de preços e descontos Plano Flexível, em vigor a partir de 1 de janeiro de 2026, 'Tabela de preços'",
+      "cross_check_name": "Galp Plano Dinâmico",
+      "cross_check_note": "tiagofelicia.pt calls it 'Plano Dinâmico'; the formula and Ci are identical."
+    },
+    {
+      "id": "endesa-dinamica",
+      "name": "Endesa Tarifa Dinâmica",
+      "supplier": "Endesa",
+      "formula": "endesa",
+      "formula_text": "A + B + IEC  (A = TAR + estimated system services + estimated losses + margin; B = OMIE per 15 min)",
+      "params": {
+        "a": {
+          "unit": "EUR/kWh",
+          "verified": true,
+          "source": "Endesa, Tarifa Dinâmica Endesa Luz, ficha padronizada (documento editado a 12/10/2026), Parte II tabelas de preços e nota (10)",
+          "note": "A depends on the option, the period and the contracted power; it already contains the TAR, so the TAR is shown as part of A",
+          "by_option": {
+            "simples": {
+              "simples": {
+                "1.15": 0.123673,
+                "2.3": 0.123673,
+                "3.45": 0.123673,
+                "4.6": 0.123673,
+                "5.75": 0.123673,
+                "6.9": 0.123673,
+                "10.35": 0.123673,
+                "13.8": 0.123673,
+                "17.25": 0.12362,
+                "20.7": 0.12362
+              }
+            },
+            "bi": {
+              "fora_vazio": {
+                "1.15": null,
+                "2.3": null,
+                "3.45": 0.14726,
+                "4.6": 0.14726,
+                "5.75": 0.14726,
+                "6.9": 0.14726,
+                "10.35": 0.147242,
+                "13.8": 0.147242,
+                "17.25": 0.147227,
+                "20.7": 0.147227
+              },
+              "vazio": {
+                "1.15": null,
+                "2.3": null,
+                "3.45": 0.077343,
+                "4.6": 0.077343,
+                "5.75": 0.077343,
+                "6.9": 0.077343,
+                "10.35": 0.077298,
+                "13.8": 0.077298,
+                "17.25": 0.077279,
+                "20.7": 0.077279
+              }
+            },
+            "tri": {
+              "ponta": {
+                "1.15": null,
+                "2.3": null,
+                "3.45": null,
+                "4.6": null,
+                "5.75": null,
+                "6.9": null,
+                "10.35": 0.309676,
+                "13.8": 0.309676,
+                "17.25": 0.309676,
+                "20.7": 0.309676
+              },
+              "cheias": {
+                "1.15": null,
+                "2.3": null,
+                "3.45": null,
+                "4.6": null,
+                "5.75": null,
+                "6.9": null,
+                "10.35": 0.10456,
+                "13.8": 0.10456,
+                "17.25": 0.10456,
+                "20.7": 0.10456
+              },
+              "vazio": {
+                "1.15": null,
+                "2.3": null,
+                "3.45": null,
+                "4.6": null,
+                "5.75": null,
+                "6.9": null,
+                "10.35": 0.077298,
+                "13.8": 0.077298,
+                "17.25": 0.077279,
+                "20.7": 0.077279
+              }
+            }
+          }
+        },
+        "cg": {
+          "value": 0.164384,
+          "unit": "EUR/day",
+          "verified": true,
+          "source": "Endesa, Tarifa Dinâmica Endesa Luz, ficha padronizada (documento editado a 12/10/2026), Parte II tabelas de preços e nota (10) (Custo de gestão)"
+        }
+      },
+      "ficha": {
+        "title": "Tarifa Dinâmica Endesa Luz - ficha padronizada",
+        "date": "2026-10-12",
+        "url": "https://www.endesa.pt/particulares/planos/luz",
+        "url_verified": false
+      },
+      "valid_from": "2026-10-12",
+      "status": "exact",
+      "warnings": [
+        "Promotional offer until 2 Dec 2026."
+      ],
+      "cycles": [
+        "simples",
+        "bi-diario",
+        "bi-semanal",
+        "tri-diario",
+        "tri-semanal"
+      ],
+      "kva": [
+        "1.15",
+        "2.3",
+        "3.45",
+        "4.6",
+        "5.75",
+        "6.9",
+        "10.35",
+        "13.8",
+        "17.25",
+        "20.7"
+      ],
+      "kva_by_option": {
+        "simples": [
+          "1.15",
+          "2.3",
+          "3.45",
+          "4.6",
+          "5.75",
+          "6.9",
+          "10.35",
+          "13.8",
+          "17.25",
+          "20.7"
+        ],
+        "bi": [
+          "3.45",
+          "4.6",
+          "5.75",
+          "6.9",
+          "10.35",
+          "13.8",
+          "17.25",
+          "20.7"
+        ],
+        "tri": [
+          "10.35",
+          "13.8",
+          "17.25",
+          "20.7"
+        ]
+      },
+      "reference_kva": {
+        "simples": "6.9",
+        "bi": "6.9",
+        "tri": "10.35"
+      },
+      "power_eur_day": {
+        "1.15": 0.1273,
+        "2.3": 0.1845,
+        "3.45": 0.2418,
+        "4.6": 0.2991,
+        "5.75": 0.3564,
+        "6.9": 0.4136,
+        "10.35": 0.5854,
+        "13.8": 0.7572,
+        "17.25": 0.9291,
+        "20.7": 1.1009
+      },
+      "power_source": "Endesa, Tarifa Dinâmica Endesa Luz, ficha padronizada (documento editado a 12/10/2026), Parte II tabelas de preços e nota (10)",
+      "cross_check_name": null,
+      "cross_check_note": "tiagofelicia.pt only lists Endesa's monthly-average 'Tarifa Indexada', a different product."
+    }
+  ],
+  "common": {
+    "iec": {
+      "value": 0.001,
+      "unit": "EUR/kWh",
+      "verified": true,
+      "source": "Imposto Especial sobre o Consumo de eletricidade; value as listed in Coopérnico, tarifários Base 2.0 / GO 2.0 (julho 2026), pp. 2, 5-7"
     },
     "tse": {
-     "value": 0.0020666,
-     "unit": "EUR/kWh",
-     "verified": true,
-     "source": "Coopérnico, tarifários Base 2.0 / GO 2.0 (julho 2026), pp. 2, 5-7 p. 7"
-    }
-   },
-   "ficha": {
-    "title": "Coopérnico tarifários (julho 2026)",
-    "date": "2026-07-01",
-    "url": "https://www.coopernico.org",
-    "url_verified": false
-   },
-   "valid_from": "2026-07-01",
-   "status": "estimate",
-   "status_reason": "CR and CS change monthly; the ficha's indicative values are used. The ficha's worked example omits CR/CS/TSE, so whether they are billed per kWh should be confirmed.",
-   "cycles": [
-    "simples",
-    "bi-diario",
-    "bi-semanal",
-    "tri-diario",
-    "tri-semanal"
-   ],
-   "kva": [
-    "1.15",
-    "2.3",
-    "3.45",
-    "4.6",
-    "5.75",
-    "6.9",
-    "10.35",
-    "13.8",
-    "17.25",
-    "20.7"
-   ],
-   "power_eur_day": {
-    "1.15": 0.0787,
-    "2.3": 0.1359,
-    "3.45": 0.1943,
-    "4.6": 0.2522,
-    "5.75": 0.3099,
-    "6.9": 0.368,
-    "10.35": 0.5443,
-    "13.8": 0.7257,
-    "17.25": 0.9008,
-    "20.7": 1.0771
-   },
-   "power_source": "Coopérnico, tarifários Base 2.0 / GO 2.0 (julho 2026), pp. 2, 5-7 p. 2",
-   "cross_check_name": null,
-   "cross_check_note": "tiagofelicia.pt lists 'Coopérnico Único' with a different formula (k without FP, CS from REN's daily ERC), so it is not compared."
-  },
-  {
-   "id": "g9-smart-dynamic",
-   "name": "G9 Smart Dynamic",
-   "supplier": "G9 Energia",
-   "formula": "g9",
-   "formula_text": "max(OMIE, 0) × (1 + Perdas) × K1 + K2 + K3 + TAR + IEC",
-   "params": {
-    "k1": {
-     "value": 1.02,
-     "unit": "factor",
-     "verified": false,
-     "source": "caller brief; same value in tiagofelicia.pt calculator constants (CC BY 4.0), not a supplier document"
+      "value": 0.0020666,
+      "unit": "EUR/kWh",
+      "verified": true,
+      "source": "Financiamento da Tarifa Social de Eletricidade; value as listed in Coopérnico, tarifários Base 2.0 / GO 2.0 (julho 2026), pp. 2, 5-7"
     },
-    "k2": {
-     "value": 0.0185,
-     "unit": "EUR/kWh",
-     "verified": false,
-     "source": "caller brief",
-     "note": "tiagofelicia.pt models K2 as REN's ERC × (1 + Perdas), about 0,0103 €/kWh on 26 Oct 2026, not a constant"
+    "cav": {
+      "value": 2.85,
+      "unit": "EUR/month",
+      "verified": true,
+      "source": "Contribuição Audiovisual (Lei 30/2003); value as used by tiagofelicia.pt; the Coopérnico ficha lists 0,09363 €/day"
     },
-    "k3": {
-     "value": 0.008,
-     "unit": "EUR/kWh",
-     "verified": false,
-     "source": "tiagofelicia.pt calculator constants (CC BY 4.0), not a supplier document (G9_K3, 'margem comercial da G9')",
-     "note": "No G9 ficha in the research files; K3 is unconfirmed"
+    "dgeg": {
+      "value": 0.07,
+      "unit": "EUR/month",
+      "verified": true,
+      "source": "Taxa de exploração DGEG, as listed in Coopérnico, tarifários Base 2.0 / GO 2.0 (julho 2026), pp. 2, 5-7"
     }
-   },
-   "ficha": {
-    "title": null,
-    "date": null,
-    "url": "https://g9.pt/energia/",
-    "url_verified": false
-   },
-   "valid_from": "2026-01-01",
-   "status": "estimate",
-   "status_reason": "No G9 ficha was available: K1/K2/K3 come from the brief and a third-party calculator; TSE inclusion unknown (tiagofelicia.pt adds TSE).",
-   "cycles": [
-    "simples",
-    "bi-diario",
-    "bi-semanal",
-    "tri-diario",
-    "tri-semanal"
-   ],
-   "kva": [
-    "1.15",
-    "2.3",
-    "3.45",
-    "4.6",
-    "5.75",
-    "6.9",
-    "10.35",
-    "13.8",
-    "17.25",
-    "20.7"
-   ],
-   "power_eur_day": null,
-   "power_source": null,
-   "cross_check_name": "G9 Smart Dynamic SPOT 8!"
   },
-  {
-   "id": "repsol-leve-sem-mais",
-   "name": "Repsol Leve Sem Mais",
-   "supplier": "Repsol",
-   "formula": "repsol",
-   "formula_text": "POMIE × (1 + Perdas) × FA + QTarifa + TSE + TAR + IEC",
-   "params": {
-    "fa": {
-     "value": 1.03,
-     "unit": "factor",
-     "verified": true,
-     "source": "Repsol, Condições particulares Tarifa Leve Sem Mais, versão 20260101, 'Informação complementar - Fórmula indexado Eletricidade'"
-    },
-    "q": {
-     "value": 0.02109,
-     "unit": "EUR/kWh",
-     "verified": true,
-     "source": "Repsol, Condições particulares Tarifa Leve Sem Mais, versão 20260101, 'Informação complementar - Fórmula indexado Eletricidade' (QTarifa)"
-    },
-    "tse": {
-     "value": 0.0020666,
-     "unit": "EUR/kWh",
-     "verified": true,
-     "source": "Repsol, Condições particulares Tarifa Leve Sem Mais, versão 20260101, 'Informação complementar - Fórmula indexado Eletricidade' says the social tariff financing is billed separately; value from Coopérnico, tarifários Base 2.0 / GO 2.0 (julho 2026), pp. 2, 5-7"
-    }
-   },
-   "ficha": {
-    "title": "Condições particulares Tarifa Leve Sem Mais, versão 20260101",
-    "date": "2026-01-01",
-    "url": "https://www.repsol.pt/particulares/casa/eletricidade-gas/planos-eletricidade-e-gas/plano-leve-sem-mais/",
-    "url_verified": false
-   },
-   "valid_from": "2026-01-01",
-   "status": "exact",
-   "warnings": [
-    "The ficha says 'Oferta válida até 31/01/2026'; no newer version was checked."
-   ],
-   "cycles": [
-    "simples",
-    "bi-diario",
-    "bi-semanal",
-    "tri-diario",
-    "tri-semanal"
-   ],
-   "kva": [
-    "1.15",
-    "2.3",
-    "3.45",
-    "4.6",
-    "5.75",
-    "6.9",
-    "10.35",
-    "13.8",
-    "17.25",
-    "20.7"
-   ],
-   "power_eur_day": {
-    "1.15": 0.2823,
-    "2.3": 0.3395,
-    "3.45": 0.3968,
-    "4.6": 0.4041,
-    "5.75": 0.4614,
-    "6.9": 0.5186,
-    "10.35": 0.6904,
-    "13.8": 0.8622,
-    "17.25": 1.0341,
-    "20.7": 1.2059
-   },
-   "power_source": "Repsol, Condições particulares Tarifa Leve Sem Mais, versão 20260101, 'Informação complementar - Fórmula indexado Eletricidade', tabela de preços",
-   "cross_check_name": "Repsol Leve Sem Mais"
-  },
-  {
-   "id": "galp-plano-flexivel",
-   "name": "Galp Plano Flexível",
-   "supplier": "Galp",
-   "formula": "galp",
-   "formula_text": "(PM + Ci) × (1 + L) + TAR + IEC",
-   "params": {
-    "ci": {
-     "value": 0.0191,
-     "unit": "EUR/kWh",
-     "verified": true,
-     "source": "Galp, Tabela de preços e descontos Plano Flexível, em vigor a partir de 1 de janeiro de 2026, 'Tabela de preços'",
-     "note": "Galp may revise Ci in January, April, July and October; later revisions were not checked"
-    }
-   },
-   "ficha": {
-    "title": "Tabela de preços e descontos Galp - Plano Flexível",
-    "date": "2026-01-01",
-    "url": "https://www.galp.com/pt/casa/planos-eletricidade-e-gas/eletricidade-indexada",
-    "url_verified": false
-   },
-   "valid_from": "2026-01-01",
-   "status": "exact",
-   "warnings": [
-    "Ci is revisable quarterly; 0,0191 €/kWh is the value at 1 Jan 2026."
-   ],
-   "cycles": [
-    "simples",
-    "bi-diario",
-    "bi-semanal",
-    "tri-diario",
-    "tri-semanal"
-   ],
-   "kva": [
-    "1.15",
-    "2.3",
-    "3.45",
-    "4.6",
-    "5.75",
-    "6.9",
-    "10.35",
-    "13.8",
-    "17.25",
-    "20.7"
-   ],
-   "power_eur_day": {
-    "1.15": 0.1613,
-    "2.3": 0.2153,
-    "3.45": 0.238,
-    "4.6": 0.3041,
-    "5.75": 0.3728,
-    "6.9": 0.4743,
-    "10.35": 0.6732,
-    "13.8": 0.8833,
-    "17.25": 1.0844,
-    "20.7": 1.2957
-   },
-   "power_source": "Galp, Tabela de preços e descontos Plano Flexível, em vigor a partir de 1 de janeiro de 2026, 'Tabela de preços'",
-   "cross_check_name": "Galp Plano Dinâmico",
-   "cross_check_note": "tiagofelicia.pt calls it 'Plano Dinâmico'; the formula and Ci are identical."
-  },
-  {
-   "id": "endesa-dinamica",
-   "name": "Endesa Tarifa Dinâmica",
-   "supplier": "Endesa",
-   "formula": "endesa",
-   "formula_text": "A + B + IEC  (A = TAR + estimated system services + estimated losses + margin; B = OMIE per 15 min)",
-   "params": {
-    "a": {
-     "unit": "EUR/kWh",
-     "verified": true,
-     "source": "Endesa, Tarifa Dinâmica Endesa Luz, ficha padronizada (documento editado a 12/10/2026), Parte II tabelas de preços e nota (10)",
-     "note": "A depends on the option, the period and the contracted power; it already contains the TAR, so the TAR is shown as part of A",
-     "by_option": {
-      "simples": {
-       "simples": {
-        "1.15": 0.123673,
-        "2.3": 0.123673,
-        "3.45": 0.123673,
-        "4.6": 0.123673,
-        "5.75": 0.123673,
-        "6.9": 0.123673,
-        "10.35": 0.123673,
-        "13.8": 0.123673,
-        "17.25": 0.12362,
-        "20.7": 0.12362
-       }
-      },
-      "bi": {
-       "fora_vazio": {
-        "1.15": null,
-        "2.3": null,
-        "3.45": 0.14726,
-        "4.6": 0.14726,
-        "5.75": 0.14726,
-        "6.9": 0.14726,
-        "10.35": 0.147242,
-        "13.8": 0.147242,
-        "17.25": 0.147227,
-        "20.7": 0.147227
-       },
-       "vazio": {
-        "1.15": null,
-        "2.3": null,
-        "3.45": 0.077343,
-        "4.6": 0.077343,
-        "5.75": 0.077343,
-        "6.9": 0.077343,
-        "10.35": 0.077298,
-        "13.8": 0.077298,
-        "17.25": 0.077279,
-        "20.7": 0.077279
-       }
-      },
-      "tri": {
-       "ponta": {
-        "1.15": null,
-        "2.3": null,
-        "3.45": null,
-        "4.6": null,
-        "5.75": null,
-        "6.9": null,
-        "10.35": 0.309676,
-        "13.8": 0.309676,
-        "17.25": 0.309676,
-        "20.7": 0.309676
-       },
-       "cheias": {
-        "1.15": null,
-        "2.3": null,
-        "3.45": null,
-        "4.6": null,
-        "5.75": null,
-        "6.9": null,
-        "10.35": 0.10456,
-        "13.8": 0.10456,
-        "17.25": 0.10456,
-        "20.7": 0.10456
-       },
-       "vazio": {
-        "1.15": null,
-        "2.3": null,
-        "3.45": null,
-        "4.6": null,
-        "5.75": null,
-        "6.9": null,
-        "10.35": 0.077298,
-        "13.8": 0.077298,
-        "17.25": 0.077279,
-        "20.7": 0.077279
-       }
-      }
-     }
-    },
-    "cg": {
-     "value": 0.164384,
-     "unit": "EUR/day",
-     "verified": true,
-     "source": "Endesa, Tarifa Dinâmica Endesa Luz, ficha padronizada (documento editado a 12/10/2026), Parte II tabelas de preços e nota (10) (Custo de gestão)"
-    }
-   },
-   "ficha": {
-    "title": "Tarifa Dinâmica Endesa Luz - ficha padronizada",
-    "date": "2026-10-12",
-    "url": "https://www.endesa.pt/particulares/planos/luz",
-    "url_verified": false
-   },
-   "valid_from": "2026-10-12",
-   "status": "exact",
-   "warnings": [
-    "Promotional offer until 2 Dec 2026."
-   ],
-   "cycles": [
-    "simples",
-    "bi-diario",
-    "bi-semanal",
-    "tri-diario",
-    "tri-semanal"
-   ],
-   "kva": [
-    "1.15",
-    "2.3",
-    "3.45",
-    "4.6",
-    "5.75",
-    "6.9",
-    "10.35",
-    "13.8",
-    "17.25",
-    "20.7"
-   ],
-   "kva_by_option": {
-    "simples": [
-     "1.15",
-     "2.3",
-     "3.45",
-     "4.6",
-     "5.75",
-     "6.9",
-     "10.35",
-     "13.8",
-     "17.25",
-     "20.7"
-    ],
-    "bi": [
-     "3.45",
-     "4.6",
-     "5.75",
-     "6.9",
-     "10.35",
-     "13.8",
-     "17.25",
-     "20.7"
-    ],
-    "tri": [
-     "10.35",
-     "13.8",
-     "17.25",
-     "20.7"
-    ]
-   },
-   "reference_kva": {
-    "simples": "6.9",
-    "bi": "6.9",
-    "tri": "10.35"
-   },
-   "power_eur_day": {
-    "1.15": 0.1273,
-    "2.3": 0.1845,
-    "3.45": 0.2418,
-    "4.6": 0.2991,
-    "5.75": 0.3564,
-    "6.9": 0.4136,
-    "10.35": 0.5854,
-    "13.8": 0.7572,
-    "17.25": 0.9291,
-    "20.7": 1.1009
-   },
-   "power_source": "Endesa, Tarifa Dinâmica Endesa Luz, ficha padronizada (documento editado a 12/10/2026), Parte II tabelas de preços e nota (10)",
-   "cross_check_name": null,
-   "cross_check_note": "tiagofelicia.pt only lists Endesa's monthly-average 'Tarifa Indexada', a different product."
-  }
- ],
- "common": {
-  "iec": {
-   "value": 0.001,
-   "unit": "EUR/kWh",
-   "verified": true,
-   "source": "Imposto Especial sobre o Consumo de eletricidade; value as listed in Coopérnico, tarifários Base 2.0 / GO 2.0 (julho 2026), pp. 2, 5-7"
-  },
-  "tse": {
-   "value": 0.0020666,
-   "unit": "EUR/kWh",
-   "verified": true,
-   "source": "Financiamento da Tarifa Social de Eletricidade; value as listed in Coopérnico, tarifários Base 2.0 / GO 2.0 (julho 2026), pp. 2, 5-7"
-  },
-  "cav": {
-   "value": 2.85,
-   "unit": "EUR/month",
-   "verified": true,
-   "source": "Contribuição Audiovisual (Lei 30/2003); value as used by tiagofelicia.pt; the Coopérnico ficha lists 0,09363 €/day"
-  },
-  "dgeg": {
-   "value": 0.07,
-   "unit": "EUR/month",
-   "verified": true,
-   "source": "Taxa de exploração DGEG, as listed in Coopérnico, tarifários Base 2.0 / GO 2.0 (julho 2026), pp. 2, 5-7"
-  }
- },
- "notes": [
-  "All per-kWh prices exclude VAT. 'total_vat23' applies 23% to every per-kWh component; real bills apply 6% to the first 200 kWh per 30 days for ≤ 6,9 kVA (see /v1/compare).",
-  "OMIE and Perdas are per quarter-hour; Perdas = E-REDES BTN loss factor (1+BT)(1+MT)(1+AT)(1+AT/RNT)-1.",
-  "Power prices are the supplier's own €/day tables (they already include the TAR power term)."
- ]
+  "notes": [
+    "All per-kWh prices exclude VAT. 'total_vat23' applies 23% to every per-kWh component; real bills apply 6% to the first 200 kWh per 30 days for ≤ 6,9 kVA (see /v1/compare).",
+    "OMIE and Perdas are per quarter-hour; Perdas = E-REDES BTN loss factor (1+BT)(1+MT)(1+AT)(1+AT/RNT)-1.",
+    "Power prices are the supplier's own €/day tables (they already include the TAR power term)."
+  ]
 }
