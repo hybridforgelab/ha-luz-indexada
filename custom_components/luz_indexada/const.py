@@ -44,7 +44,7 @@ MAX_WINDOW_HOURS: Final = 12.0
 SLOT: Final = timedelta(minutes=15)
 REQUEST_TIMEOUT: Final = 30
 
-# Call budget (RapidAPI Basic = 150 requests/month):
+# Call budget (~2-4 requests/day, 60-130/month: the RapidAPI Pro plan; Basic is 15/month):
 # - today's prices: only when nothing usable is cached (normally never: tomorrow is promoted at midnight)
 # - tomorrow's prices: from PUBLICATION_HOUR Lisbon, then every TOMORROW_RETRY until published
 # - today's prices again once tomorrow is out, to fill today's last hour (pending until then)
