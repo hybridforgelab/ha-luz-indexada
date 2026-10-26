@@ -20,9 +20,6 @@ jobs:
       - uses: hacs/action@1ebf01c408f29afcb6406bd431bc98fd8cbb15aa # main
         with:
           category: integration
-          # brands: the icon is submitted to home-assistant/brands separately.
-          # topics: set in the repository settings (About → Topics); drop this once they are there.
-          ignore: brands topics
 
   hassfest:
     name: Hassfest
