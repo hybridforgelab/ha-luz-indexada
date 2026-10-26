@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/hybridforgelab/ha-luz-indexada/compare/v0.3.0...v0.4.0) (2026-10-26)
+
+
+### Features
+
+* ship the integration icon and declare Portugal for HACS ([#11](https://github.com/hybridforgelab/ha-luz-indexada/issues/11)) ([4efcc79](https://github.com/hybridforgelab/ha-luz-indexada/commit/4efcc79e30b8d9ae0538c69d1510cdae9d873f65))
+
 ## [0.3.0](https://github.com/hybridforgelab/ha-luz-indexada/compare/v0.2.2...v0.3.0) (2026-10-25)
 
 
