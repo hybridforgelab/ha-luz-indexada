@@ -32,8 +32,11 @@ Each price is OMIE + losses + supplier terms + network tariff (TAR) + IEC, per t
 - English and Portuguese (pt-PT).
 
 Supported tariffs come from the API's catalogue, so new ones appear without updating the integration. Today:
-Coopérnico ÚNICO, G9 Smart Dynamic, Repsol Leve Sem Mais, Galp Plano Flexível, Endesa Tarifa Dinâmica and EDP
-Eletricidade Indexada Horária, each with the simple, two-rate and three-rate cycles (daily or weekly).
+Coopérnico ÚNICO, G9 Smart Dynamic, Repsol Leve Sem Mais, Galp Plano Flexível, Endesa Tarifa Dinâmica, EDP
+Eletricidade Indexada Horária, Alfa Power Index, EZU Indexada, MEO Energia Tarifa Dinâmica and Plenitude Tendência,
+with the simple, two-rate and three-rate cycles (daily or weekly) each supplier sells up to 20,7 kVA. Alfa, EZU, MEO
+and Plenitude include REN's system costs, which REN publishes about two days late, so their prices for today and
+tomorrow use a forecast (they are marked **estimate**).
 Some tariffs are marked **estimate** when the supplier's ficha only gives indicative values. The status shows up in
 the setup list and as the `status` / `estimate` attributes.
 
@@ -237,7 +240,7 @@ Contact: hybridforgelab@gmail.com · Licence: MIT
 ## Português
 
 **Luz Indexada** mostra no Home Assistant o **preço final real da eletricidade a cada 15 minutos** para os
-tarifários indexados em Portugal (Coopérnico, G9, Repsol, Galp, Endesa, EDP), em todos os ciclos: simples, bi-horário e
+tarifários indexados em Portugal (Coopérnico, G9, Repsol, Galp, Endesa, EDP, Alfa, EZU, MEO Energia, Plenitude), em todos os ciclos: simples, bi-horário e
 tri-horário, diário ou semanal.
 
 - **Instalação:** HACS → Repositórios personalizados → `https://github.com/hybridforgelab/ha-luz-indexada`
