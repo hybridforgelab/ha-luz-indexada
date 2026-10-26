@@ -38,6 +38,11 @@ the setup list and as the `status` / `estimate` attributes.
 
 ## Installation
 
+With HACS installed, these two buttons do steps 2 and 4 for you:
+
+[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=hybridforgelab&repository=ha-luz-indexada&category=integration)
+[![Open your Home Assistant instance and start setting up Luz Indexada.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=luz_indexada)
+
 1. Install [HACS](https://hacs.xyz/).
 2. HACS → ⋮ → **Custom repositories** → add `https://github.com/hybridforgelab/ha-luz-indexada`, category
    **Integration**.
@@ -236,6 +241,10 @@ tri-horário, diário ou semanal.
 
 - **Instalação:** HACS → Repositórios personalizados → `https://github.com/hybridforgelab/ha-luz-indexada`
   (Integração). Depois vá a Definições → Dispositivos e serviços → Adicionar integração → *Luz Indexada*.
+  Com o HACS instalado, estes botões fazem os dois passos:
+
+  [![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=hybridforgelab&repository=ha-luz-indexada&category=integration)
+  [![Open your Home Assistant instance and start setting up Luz Indexada.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=luz_indexada)
 - **Chave:** subscreva a API *Luz Indexada* no RapidAPI (uma instalação normal precisa do plano Pro; o
   Basic, com 15 pedidos/mês, serve só para experimentar) e cole a
   `X-RapidAPI-Key`.
