@@ -222,7 +222,7 @@ LUZ_BASE_URL=https://... LUZ_API_KEY=... .venv/bin/python scripts/verify_live.py
 # The supplier comparison is printed too (2 more calls); --kwh 300 --kva 10.35 to change it, --no-compare to skip it.
 ```
 
-Releases use Conventional Commits and release-please. The icon will be submitted to `home-assistant/brands`.
+Releases use Conventional Commits and release-please. The icon ships with the integration in `custom_components/luz_indexada/brand/` (Home Assistant 2026.3+ and HACS read it from there).
 
 Contact: hybridforgelab@gmail.com · Licence: MIT
 
