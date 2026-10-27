@@ -233,6 +233,10 @@ LUZ_BASE_URL=https://... LUZ_API_KEY=... .venv/bin/python scripts/verify_live.py
 
 Releases use Conventional Commits and release-please. The icon ships with the integration in `custom_components/luz_indexada/brand/` (Home Assistant 2026.3+ and HACS read it from there).
 
+## Contributing
+
+Issues and pull requests are welcome. See the [contributing guide](https://github.com/hybridforgelab/.github/blob/main/CONTRIBUTING.md) (Conventional Commits, tests and lint before the pull request) and the [code of conduct](https://github.com/hybridforgelab/.github/blob/main/CODE_OF_CONDUCT.md). Problems with the Luz Indexada API itself (plans, keys, prices) go to the [contact page](https://luz.hybridforgelab.com/contact.html); security issues by email, never in a public issue.
+
 Contact: hybridforgelab@gmail.com · Licence: MIT
 
 ---
@@ -272,5 +276,7 @@ tri-horário, diário ou semanal.
 - **IVA:** com a opção ativa aplica-se 23% a tudo. Numa fatura real, os primeiros 200 kWh por 30 dias (até
   6,9 kVA) pagam 6%.
 - Os tarifários marcados como **estimate** usam valores indicativos da ficha do fornecedor (atributo `estimate`).
+
+- **Contribuir:** issues e pull requests são bem-vindos (em português ou inglês); ver o [guia de contribuição](https://github.com/hybridforgelab/.github/blob/main/CONTRIBUTING.md). Questões sobre a API Luz Indexada vão para a [página de contacto](https://luz.hybridforgelab.com/pt/contact.html).
 
 Preços: OMIE (www.omie.es). Contacto: hybridforgelab@gmail.com
