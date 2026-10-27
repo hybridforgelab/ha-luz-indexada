@@ -5,6 +5,7 @@
 [![Tests](https://github.com/hybridforgelab/ha-luz-indexada/actions/workflows/tests.yml/badge.svg)](https://github.com/hybridforgelab/ha-luz-indexada/actions/workflows/tests.yml)
 
 The **real final electricity price, every 15 minutes**, for Portuguese indexed (dynamic) tariffs, in Home Assistant.
+
 Each price is OMIE + losses + supplier terms + network tariff (TAR) + IEC, per tariff and per cycle, from the
 [Luz Indexada API](https://luz.hybridforgelab.com).
 
@@ -31,14 +32,27 @@ Each price is OMIE + losses + supplier terms + network tariff (TAR) + IEC, per t
 - Reauthentication when the key is rejected, backoff on rate limits, and diagnostics with the key redacted.
 - English and Portuguese (pt-PT).
 
-Supported tariffs come from the API's catalogue, so new ones appear without updating the integration. Today:
-Coopérnico ÚNICO, G9 Smart Dynamic, Repsol Leve Sem Mais, Galp Plano Flexível, Endesa Tarifa Dinâmica, EDP
-Eletricidade Indexada Horária, Alfa Power Index, EZU Indexada, MEO Energia Tarifa Dinâmica and Plenitude Tendência,
-with the simple, two-rate and three-rate cycles (daily or weekly) each supplier sells up to 20,7 kVA. Alfa, EZU, MEO
-and Plenitude include REN's system costs, which REN publishes about two days late, so their prices for today and
-tomorrow use a forecast (they are marked **estimate**).
-Some tariffs are marked **estimate** when the supplier's ficha only gives indicative values. The status shows up in
-the setup list and as the `status` / `estimate` attributes.
+**Supported tariffs** come from the API's catalogue, so new ones appear without updating the integration. Today
+there are ten:
+
+- Coopérnico ÚNICO
+- G9 Smart Dynamic
+- Repsol Leve Sem Mais
+- Galp Plano Flexível
+- Endesa Tarifa Dinâmica
+- EDP Eletricidade Indexada Horária
+- Alfa Power Index
+- EZU Indexada
+- MEO Energia Tarifa Dinâmica
+- Plenitude Tendência
+
+Each comes with the simple, two-rate and three-rate cycles (daily or weekly) its supplier sells up to 20,7 kVA.
+
+Some tariffs are marked **estimate** (in the setup list and in the `status` / `estimate` attributes):
+
+- when the supplier's ficha only gives indicative values;
+- Alfa, EZU, MEO and Plenitude, because they include REN's system costs, which REN publishes about two days late:
+  their prices for today and tomorrow use a forecast.
 
 ## Installation
 
@@ -68,14 +82,18 @@ Manual install: copy `custom_components/luz_indexada` into your `config/custom_c
    **Contracted power (kVA)** (default 6.9, a standard step). Consumption and power are only used for the monthly
    cost comparison.
 
-Each tariff and cycle is its own entry, so you can add several to compare them. Each entry has its own API budget.
-VAT and the window length can be changed later under **Configure**, without spending an API call (changing the
-consumption or the power costs one call, to refresh the monthly comparison).
+Each tariff and cycle is its own entry:
 
-**About VAT:** the API prices exclude VAT. With *Include 23% VAT* on, every component is multiplied by 1.23. On a
-real bill the first 200 kWh per 30 days (300 for large families) at ≤ 6.9 kVA pay 6%. Prices are computed for a
-reference power of 6.9 kVA (10.35 kVA for Endesa three-rate), which only affects Endesa's term A slightly. The
-per-kWh price has no power option.
+- Add several entries to compare them. Each one has its own API budget.
+- VAT and the window length can be changed later under **Configure**, without spending an API call.
+- Changing the consumption or the power costs one call, to refresh the monthly comparison.
+
+**About VAT:**
+
+- The API prices exclude VAT. With *Include 23% VAT* on, every component is multiplied by 1.23.
+- On a real bill, the first 200 kWh per 30 days (300 for large families) at ≤ 6.9 kVA pay 6%.
+- Prices are computed for a reference power of 6.9 kVA (10.35 kVA for Endesa three-rate). This only affects
+  Endesa's term A slightly; the per-kWh price has no power option.
 
 ## Entities
 
@@ -126,15 +144,17 @@ tariffs (about 20 KB compressed). Every tariff that is still on sale gets:
   first, with `cost`, `saving`, `status`, `estimate`, `selected`), `selected_cost`, `saving`, `cheapest_exact`,
   `monthly_kwh`, `kva` and `month`.
 
-Tariffs that were withdrawn and replaced (for example Coopérnico Base 2.0, replaced by ÚNICO) or that are not
-available for your cycle are left out. **Estimate** tariffs are marked with `estimate: true` (and *estimate* in the
-example dashboard): their supplier ficha doesn't give every value, so treat them as a guide. Everything here is
-informative, not an offer or a bill.
+Good to know:
 
-New tariffs added to the API show up as new sensors on their own. Each entry compares on its own, so if you add
-several entries you may want to turn the comparison off on all but one. The monthly cost uses a fixed consumption
-figure; reading it from your own energy sensor is not supported (a monthly meter resets at the start of the month,
-so its value is not a monthly consumption until the month ends).
+- Tariffs that were withdrawn and replaced (for example Coopérnico Base 2.0, replaced by ÚNICO), or that aren't
+  available for your cycle, are left out.
+- **Estimate** tariffs are marked with `estimate: true` (and *estimate* in the example dashboard). Their supplier
+  ficha doesn't give every value, so treat them as a guide.
+- Everything here is informative, not an offer or a bill.
+- New tariffs added to the API show up as new sensors on their own.
+- Each entry compares on its own. If you add several entries, you may want to turn the comparison off on all but one.
+- The monthly cost uses a fixed consumption figure. Reading it from your own energy sensor isn't supported: a
+  monthly meter resets at the start of the month, so its value isn't a monthly consumption until the month ends.
 
 ## Example dashboard
 
@@ -208,12 +228,16 @@ try the integration for a few days; a normal install needs the **Pro** plan (10,
 | Supplier comparison: tariff list, to leave withdrawn tariffs out | 1 a week |
 | Turning the comparison on with prices already cached | 1–2, once (fills the other tariffs for the cached days) |
 
-That's about **2 calls a day, ~60–70 a month** without the comparison, and **about 3 a day, ~95–105 a month** with it
-(the default). Late publications, retries and errors can push it to ~4 a day
-(**~120–130 a month**, ~160 with the comparison), well inside Pro and over Basic. A failed comparison is retried after
-6 hours and never delays the prices. Errors back off from 15 minutes up to 2 hours, and a 429 waits at least an
-hour, doubling up to 6. Every extra tariff entry has its own calls. Keep an eye on the *API calls this month* and
-*RapidAPI requests remaining* sensors.
+In practice:
+
+- **About 2 calls a day (~60–70 a month)** without the comparison, and **about 3 a day (~95–105 a month)** with it
+  (the default).
+- Late publications, retries and errors can push it to ~4 a day (**~120–130 a month**, ~160 with the comparison):
+  well inside Pro, over Basic.
+- A failed comparison is retried after 6 hours and never delays the prices.
+- Errors back off from 15 minutes up to 2 hours; a 429 waits at least an hour, doubling up to 6.
+- Every extra tariff entry has its own calls.
+- Keep an eye on the *API calls this month* and *RapidAPI requests remaining* sensors.
 
 ## Data and attribution
 
@@ -244,39 +268,50 @@ Contact: hybridforgelab@gmail.com · Licence: MIT
 ## Português
 
 **Luz Indexada** mostra no Home Assistant o **preço final real da eletricidade a cada 15 minutos** para os
-tarifários indexados em Portugal (Coopérnico, G9, Repsol, Galp, Endesa, EDP, Alfa, EZU, MEO Energia, Plenitude), em todos os ciclos: simples, bi-horário e
-tri-horário, diário ou semanal.
+tarifários indexados em Portugal (Coopérnico, G9, Repsol, Galp, Endesa, EDP, Alfa, EZU, MEO Energia, Plenitude),
+em todos os ciclos: simples, bi-horário e tri-horário, diário ou semanal.
 
-- **Instalação:** HACS → Repositórios personalizados → `https://github.com/hybridforgelab/ha-luz-indexada`
-  (Integração). Depois vá a Definições → Dispositivos e serviços → Adicionar integração → *Luz Indexada*.
-  Com o HACS instalado, estes botões fazem os dois passos:
+- **Instalação:**
+  - HACS → Repositórios personalizados → `https://github.com/hybridforgelab/ha-luz-indexada` (Integração).
+  - Depois: Definições → Dispositivos e serviços → Adicionar integração → *Luz Indexada*.
+  - Com o HACS instalado, estes botões fazem os dois passos:
 
-  [![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=hybridforgelab&repository=ha-luz-indexada&category=integration)
-  [![Open your Home Assistant instance and start setting up Luz Indexada.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=luz_indexada)
-- **Chave:** subscreva a API *Luz Indexada* no RapidAPI (uma instalação normal precisa do plano Pro; o
-  Basic, com 15 pedidos/mês, serve só para experimentar) e cole a
-  `X-RapidAPI-Key`.
-- **Entidades:** preço atual e próximo (€/kWh, com ou sem IVA a 23%), mínimo/máximo/média de hoje, início da janela
-  mais barata de N horas, *Barato agora* (abaixo da média de hoje ou dentro da janela mais barata) e *Amanhã
-  disponível*. Os atributos `raw_today`/`raw_tomorrow` servem para gráficos ApexCharts.
-- **Comparar fornecedores** (ativo por omissão): preço médio de hoje e curvas de 15 minutos de todos os outros
-  tarifários (das mesmas respostas, sem pedidos extra), custo mensal estimado por fornecedor para o seu consumo e
-  potência contratada (opções *Consumo mensal* e *Potência contratada*) e o sensor *Fornecedor mais barato*, com a
-  poupança face ao seu tarifário. Os tarifários retirados (por exemplo Coopérnico Base 2.0) e os indisponíveis no
-  seu ciclo ficam de fora; os **estimate** estão marcados. Os valores são informativos, não são uma proposta nem uma
-  fatura.
-- **Dashboard de exemplo:** [`examples/dashboard.pt.yaml`](examples/dashboard.pt.yaml) se o Home Assistant estiver em português (os entity_id saem dos nomes traduzidos); [`examples/dashboard.yaml`](examples/dashboard.yaml) se estiver em inglês, uma vista Lovelace pronta a colar
-  (precisa do [apexcharts-card](https://github.com/RomRider/apexcharts-card), HACS → Frontend, com o recurso
-  Lovelace registado). Os ids correspondem a uma instalação de Galp Plano Flexível, ciclo simples; para outro
-  tarifário substitua `galp_plano_flexivel_simples` pelo seu prefixo (Definições → Dispositivos e serviços → Luz
-  Indexada → Entidades).
-- **Consumo da API:** cerca de 2 pedidos por dia (60 a 70 por mês) sem a comparação e cerca de 3 por dia (95 a 105
-  por mês) com ela: o custo mensal é pedido uma vez por dia e a lista de tarifários uma vez por semana. O preço atual é calculado localmente e os
-  preços ficam em cache, por isso reiniciar o Home Assistant não gasta pedidos.
-- **IVA:** com a opção ativa aplica-se 23% a tudo. Numa fatura real, os primeiros 200 kWh por 30 dias (até
-  6,9 kVA) pagam 6%.
-- Os tarifários marcados como **estimate** usam valores indicativos da ficha do fornecedor (atributo `estimate`).
-
+    [![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=hybridforgelab&repository=ha-luz-indexada&category=integration)
+    [![Open your Home Assistant instance and start setting up Luz Indexada.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=luz_indexada)
+- **Chave:** subscreva a API *Luz Indexada* no RapidAPI e cole a `X-RapidAPI-Key`. Uma instalação normal precisa do
+  plano Pro; o Basic, com 15 pedidos/mês, serve só para experimentar.
+- **Entidades:**
+  - preço atual e próximo (€/kWh, com ou sem IVA a 23%);
+  - mínimo, máximo e média de hoje;
+  - início da janela mais barata de N horas;
+  - *Barato agora* (abaixo da média de hoje ou dentro da janela mais barata) e *Amanhã disponível*;
+  - os atributos `raw_today` / `raw_tomorrow` servem para gráficos ApexCharts.
+- **Comparar fornecedores** (ativo por omissão):
+  - preço médio de hoje e curvas de 15 minutos de todos os outros tarifários (das mesmas respostas, sem pedidos
+    extra);
+  - custo mensal estimado por fornecedor para o seu consumo e potência contratada (opções *Consumo mensal* e
+    *Potência contratada*);
+  - o sensor *Fornecedor mais barato*, com a poupança face ao seu tarifário;
+  - os tarifários retirados (por exemplo Coopérnico Base 2.0) e os indisponíveis no seu ciclo ficam de fora;
+  - os valores são informativos, não são uma proposta nem uma fatura.
+- **Dashboard de exemplo:**
+  - [`examples/dashboard.pt.yaml`](examples/dashboard.pt.yaml) se o Home Assistant estiver em português (os
+    entity_id saem dos nomes traduzidos); [`examples/dashboard.yaml`](examples/dashboard.yaml) se estiver em inglês;
+  - é uma vista Lovelace pronta a colar e precisa do [apexcharts-card](https://github.com/RomRider/apexcharts-card)
+    (HACS → Frontend), com o recurso Lovelace registado;
+  - os ids correspondem a uma instalação de Galp Plano Flexível, ciclo simples. Para outro tarifário, substitua
+    `galp_plano_flexivel_simples` pelo seu prefixo (Definições → Dispositivos e serviços → Luz Indexada →
+    Entidades).
+- **Consumo da API:**
+  - cerca de 2 pedidos por dia (60 a 70 por mês) sem a comparação, e cerca de 3 por dia (95 a 105 por mês) com ela;
+  - o custo mensal é pedido uma vez por dia e a lista de tarifários uma vez por semana;
+  - o preço atual é calculado localmente e os preços ficam em cache, por isso reiniciar o Home Assistant não gasta
+    pedidos.
+- **IVA:** com a opção ativa aplica-se 23% a tudo. Numa fatura real, os primeiros 200 kWh por 30 dias (até 6,9 kVA)
+  pagam 6%.
+- **Estimativas:** os tarifários marcados como **estimate** usam valores indicativos (atributo `estimate`). Na Alfa,
+  EZU, MEO e Plenitude entram os custos de sistema da REN, que a REN publica com dois dias de atraso, por isso os
+  preços de hoje e de amanhã usam uma previsão.
 - **Contribuir:** issues e pull requests são bem-vindos (em português ou inglês); ver o [guia de contribuição](https://github.com/hybridforgelab/.github/blob/main/CONTRIBUTING.md). Questões sobre a API Luz Indexada vão para a [página de contacto](https://luz.hybridforgelab.com/pt/contact.html).
 
 Preços: OMIE (www.omie.es). Contacto: hybridforgelab@gmail.com
