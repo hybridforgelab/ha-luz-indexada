@@ -21,10 +21,10 @@ Each price is OMIE + losses + supplier terms + network tariff (TAR) + IEC, per t
   price.
 - `Cheap now` binary sensor: on when the current price is below today's average or falls inside the cheapest window.
 - `Tomorrow available` binary sensor (OMIE publishes around 13:00 Lisbon).
-- **Supplier comparison** (on by default): today's average price and the 15-minute curves of every other tariff
-  (from the same requests, no extra calls), an estimated monthly cost per supplier for your consumption and
-  contracted power, and a *Cheapest supplier* sensor with the saving versus your tariff. See
-  [Supplier comparison](#supplier-comparison).
+- **Supplier comparison** (on by default), see [Supplier comparison](#supplier-comparison):
+  - today's average price and the 15-minute curves of every other tariff (from the same requests, no extra calls);
+  - an estimated monthly cost per supplier for your consumption and contracted power;
+  - a *Cheapest supplier* sensor with the saving versus your tariff.
 - A ready-to-paste [example dashboard](examples/dashboard.yaml) ([Portuguese version](examples/dashboard.pt.yaml), for Home Assistant set to Portuguese).
 - Very few API calls (see [API usage](#api-usage)). The current price is computed locally every 15 minutes and the
   prices are cached, so a restart costs no calls.
@@ -78,9 +78,12 @@ Manual install: copy `custom_components/luz_indexada` into your `config/custom_c
    - **Direct API**: a base URL and a bearer key, for self-hosted or test deployments.
 2. Pick the **tariff** and the **cycle**, choose whether prices **include 23% VAT**, and set the **cheapest window**
    length.
-3. Supplier comparison: **Compare suppliers** (default on), **Monthly consumption (kWh)** (default 250) and
-   **Contracted power (kVA)** (default 6.9, a standard step). Consumption and power are only used for the monthly
-   cost comparison.
+3. Supplier comparison:
+   - **Compare suppliers** (default on);
+   - **Monthly consumption (kWh)** (default 250);
+   - **Contracted power (kVA)** (default 6.9, a standard step).
+
+   Consumption and power are only used for the monthly cost comparison.
 
 Each tariff and cycle is its own entry:
 
@@ -129,17 +132,22 @@ The per-slot lists aren't written to the recorder database, so your history stay
 ## Supplier comparison
 
 With **Compare suppliers** on (the default, also for entries created by older versions), the integration asks
-`/v1/prices` for every tariff instead of only yours. That is the same number of requests: one response has all the
-tariffs (about 20 KB compressed). Every tariff that is still on sale gets:
+`/v1/prices` for every tariff instead of only yours.
+
+That is the same number of requests: one response has all the tariffs (about 20 KB compressed).
+
+Every tariff that is still on sale gets:
 
 - **Average price today — *supplier*** (e.g. `sensor.luz_indexada_galp_plano_flexivel_simples_average_price_today_repsol_leve_sem_mais`):
   today's mean price, VAT per your option, with `raw_today` / `raw_tomorrow` in the same `[{start, end, value}]`
   format as *Current price*, so you can overlay every supplier on one ApexCharts chart.
-- **Estimated monthly cost — *supplier*** (e.g. `…_estimated_monthly_cost_repsol_leve_sem_mais`): the API's
-  `/v1/compare` cost of a standard ERSE consumption profile for the current month, at your monthly kWh and contracted
-  power, with the real VAT split (6% on the first 200 kWh at ≤ 6.9 kVA, 23% on the rest) when VAT is on. Days not
-  priced yet are projected. Attributes: `saving_vs_selected` (positive means switching saves money), `total_excl_vat`,
-  `vat`, `avg_energy_price`, `days_priced`, `coverage`, `flags`.
+- **Estimated monthly cost — *supplier*** (e.g. `…_estimated_monthly_cost_repsol_leve_sem_mais`):
+  - the API's `/v1/compare` cost of a standard ERSE consumption profile for the current month, at your monthly kWh
+    and contracted power;
+  - with the real VAT split (6% on the first 200 kWh at ≤ 6.9 kVA, 23% on the rest) when VAT is on;
+  - days not priced yet are projected;
+  - attributes: `saving_vs_selected` (positive means switching saves money), `total_excl_vat`, `vat`,
+    `avg_energy_price`, `days_priced`, `coverage`, `flags`.
 - **Cheapest supplier** (`…_cheapest_supplier`): the cheapest tariff's name, with `tariffs` (every tariff, cheapest
   first, with `cost`, `saving`, `status`, `estimate`, `selected`), `selected_cost`, `saving`, `cheapest_exact`,
   `monthly_kwh`, `kva` and `month`.
@@ -148,8 +156,8 @@ Good to know:
 
 - Tariffs that were withdrawn and replaced (for example Coopérnico Base 2.0, replaced by ÚNICO), or that aren't
   available for your cycle, are left out.
-- **Estimate** tariffs are marked with `estimate: true` (and *estimate* in the example dashboard). Their supplier
-  ficha doesn't give every value, so treat them as a guide.
+- **Estimate** tariffs are marked with `estimate: true` (and *estimate* in the example dashboard).
+  Their supplier ficha doesn't give every value, so treat them as a guide.
 - Everything here is informative, not an offer or a bill.
 - New tariffs added to the API show up as new sensors on their own.
 - Each entry compares on its own. If you add several entries, you may want to turn the comparison off on all but one.
@@ -158,19 +166,24 @@ Good to know:
 
 ## Example dashboard
 
-[`examples/dashboard.yaml`](examples/dashboard.yaml) is a ready-to-paste Lovelace view (sections layout) with the
-price tiles, today's and tomorrow's prices for your tariff, all suppliers' 15-minute curves on one chart, the
-estimated monthly cost per supplier (chart and table, cheapest highlighted) and a short note on estimate versus exact.
+[`examples/dashboard.yaml`](examples/dashboard.yaml) is a ready-to-paste Lovelace view (sections layout) with:
 
-- It needs [apexcharts-card](https://github.com/RomRider/apexcharts-card) (HACS → Frontend). HACS registers the
-  Lovelace resource; on a manual install add it under Settings → Dashboards → ⋮ → Resources.
+- the price tiles;
+- today's and tomorrow's prices for your tariff;
+- all suppliers' 15-minute curves on one chart;
+- the estimated monthly cost per supplier (chart and table, cheapest highlighted);
+- a short note on estimate versus exact.
+
+- It needs [apexcharts-card](https://github.com/RomRider/apexcharts-card) (HACS → Frontend).
+  HACS registers the Lovelace resource; on a manual install add it under Settings → Dashboards → ⋮ → Resources.
 - Paste it in the dashboard's raw configuration editor as a view.
 - If your Home Assistant is set to Portuguese, entity ids are created from the Portuguese names (`…_preco_atual`,
   `…_custo_mensal_estimado_…`): use [`examples/dashboard.pt.yaml`](examples/dashboard.pt.yaml) instead.
 - The entity ids are those of a default install of Galp Plano Flexível, simple cycle
-  (`sensor.luz_indexada_galp_plano_flexivel_simples_…`). For another tariff or cycle, replace
-  `galp_plano_flexivel_simples` with your prefix (Settings → Devices & services → Luz Indexada → Entities). The
-  per-supplier suffixes (`…_repsol_leve_sem_mais`, `…_g9_smart_dynamic`, …) are the same on every install.
+  (`sensor.luz_indexada_galp_plano_flexivel_simples_…`):
+  - for another tariff or cycle, replace `galp_plano_flexivel_simples` with your prefix (Settings → Devices &
+    services → Luz Indexada → Entities);
+  - the per-supplier suffixes (`…_repsol_leve_sem_mais`, `…_g9_smart_dynamic`, …) are the same on every install.
 
 ### ApexCharts card
 
@@ -241,8 +254,11 @@ In practice:
 
 ## Data and attribution
 
-Prices: OMIE (www.omie.es). Network access tariffs and period hours: ERSE. Loss profiles: E-REDES. See
-[luz.hybridforgelab.com](https://luz.hybridforgelab.com) for the formulas, sources and known gaps per tariff.
+- Prices: OMIE (www.omie.es).
+- Network access tariffs and period hours: ERSE.
+- Loss profiles: E-REDES.
+
+See [luz.hybridforgelab.com](https://luz.hybridforgelab.com) for the formulas, sources and known gaps per tariff.
 
 ## Development
 
@@ -255,11 +271,20 @@ LUZ_BASE_URL=https://... LUZ_API_KEY=... .venv/bin/python scripts/verify_live.py
 # The supplier comparison is printed too (2 more calls); --kwh 300 --kva 10.35 to change it, --no-compare to skip it.
 ```
 
-Releases use Conventional Commits and release-please. The icon ships with the integration in `custom_components/luz_indexada/brand/` (Home Assistant 2026.3+ and HACS read it from there).
+Releases use Conventional Commits and release-please.
+
+The icon ships with the integration in `custom_components/luz_indexada/brand/` (Home Assistant 2026.3+ and HACS read it from there).
 
 ## Contributing
 
-Issues and pull requests are welcome. See the [contributing guide](https://github.com/hybridforgelab/.github/blob/main/CONTRIBUTING.md) (Conventional Commits, tests and lint before the pull request) and the [code of conduct](https://github.com/hybridforgelab/.github/blob/main/CODE_OF_CONDUCT.md). Problems with the Luz Indexada API itself (plans, keys, prices) go to the [contact page](https://luz.hybridforgelab.com/contact.html); security issues by email, never in a public issue.
+Issues and pull requests are welcome:
+
+- the [contributing guide](https://github.com/hybridforgelab/.github/blob/main/CONTRIBUTING.md) (Conventional Commits, tests and lint before the pull request);
+- the [code of conduct](https://github.com/hybridforgelab/.github/blob/main/CODE_OF_CONDUCT.md).
+
+Problems with the Luz Indexada API itself (plans, keys, prices) go to the [contact page](https://luz.hybridforgelab.com/contact.html).
+
+Security issues go by email, never in a public issue.
 
 Contact: hybridforgelab@gmail.com · Licence: MIT
 
